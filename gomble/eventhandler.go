@@ -45,9 +45,9 @@ func Init(loglevel logger.Loglevel, address string) {
 func Begin() {
 	connl, err := tls.Dial("tcp", addr, &tlsconfig)
 	if err != nil {
-		logger.Fatal("TLS Connection could not be established: " + err.Error() + "\n")
+		logger.Fatalf("TLS Connection could not be established: " + err.Error() + "\n")
 	}
-	logger.Info("TLS Connection established\n")
+	logger.Infof("TLS Connection established\n")
 	conn = connl
 
 	// Initialize mumble connection
@@ -65,33 +65,33 @@ func Begin() {
 		Tokens:   nil,
 	}
 
-	logger.Debug("Send Version\n")
+	logger.Debugf("Send Version\n")
 	if err := writeProto(&versionPacket); err != nil {
-		logger.Fatal("Sending Version failed: " + err.Error() + "\n")
+		logger.Fatalf("Sending Version failed: " + err.Error() + "\n")
 	}
 
-	logger.Debug("Send Authentification")
+	logger.Debugf("Send Authentification")
 	if err := writeProto(&authPacket); err != nil {
-		logger.Fatal("Sending Authentification failed: " + err.Error() + "\n")
+		logger.Fatalf("Sending Authentification failed: " + err.Error() + "\n")
 	}
 
 	// mumble connection established
 	udpAddr, err := net.ResolveUDPAddr("udp", addr)
 	if err != nil {
-		logger.Fatal("Error getting UDP Address: " + err.Error())
+		logger.Fatalf("Error getting UDP Address: " + err.Error())
 	}
 	audioConn, err = net.DialUDP("udp", nil, udpAddr)
 	if err != nil {
-		logger.Fatal("Error DialUDP: " + err.Error())
+		logger.Fatalf("Error DialUDP: " + err.Error())
 	}
 
 	// create the eventpuffer before anyone tries to write or read on it
 	eventpuffer = make(chan event)
 
-	logger.Debug("Start pingRoutine\n")
+	logger.Debugf("Start pingRoutine\n")
 	go pingRoutine()
 
-	logger.Debug("Start readRoutine\n")
+	logger.Debugf("Start readRoutine\n")
 	go readRoutine()
 
 	eventRoutine()
@@ -103,22 +103,22 @@ func eventRoutine() {
 	for e := range eventpuffer {
 		switch e.(type) {
 		case PrivateMessageReceivedEvent:
-			logger.Debug("Received Private Message Received event\n")
+			logger.Debugf("Received Private Message Received event\n")
 			if Listener.OnPrivateMessageReceived != nil {
 				Listener.OnPrivateMessageReceived(e.(PrivateMessageReceivedEvent))
 			}
 		case ChannelMessageReceivedEvent:
-			logger.Debug("Received Channel Message Received event\n")
+			logger.Debugf("Received Channel Message Received event\n")
 			if Listener.OnChannelMessageReceived != nil {
 				Listener.OnChannelMessageReceived(e.(ChannelMessageReceivedEvent))
 			}
 		case TrackEndedEvent:
-			logger.Debug("Received TrackEndedEvent\n")
+			logger.Debugf("Received TrackEndedEvent\n")
 			if Listener.OnTrackEnded != nil {
 				Listener.OnTrackEnded(e.(TrackEndedEvent))
 			}
 		default:
-			logger.Error("Received unknown Event\n")
+			logger.Errorf("Received unknown Event\n")
 		}
 	}
 }

@@ -84,12 +84,12 @@ func pingRoutine() {// {{{
 			// send UDP Ping
 			n, err := audioConn.Write(encryptall[:])
 			if err != nil {
-				logger.Warn("Could not send UDP Ping Message\n")
+				logger.Warnf("Could not send UDP Ping Message\n")
 				audiocryptoconfig.tcpTunnelMode = true
 				continue
 			}
 			if n < len(encryptall) {
-				logger.Warn("Could not send full encrypted buffer of Ping Message\n")
+				logger.Warnf("Could not send full encrypted buffer of Ping Message\n")
 				audiocryptoconfig.tcpTunnelMode = true
 				continue
 			}
@@ -104,11 +104,11 @@ func pingRoutine() {// {{{
 			if err != nil {
 				if neterr, ok := err.(net.Error); ok && neterr.Timeout() {
 					audiocryptoconfig.tcpTunnelMode = true
-					logger.Info("UDP ping timeout reached. Change back to TCP Tunnel\n")
+					logger.Infof("UDP ping timeout reached. Change back to TCP Tunnel\n")
 					audiocryptoconfig.tcpTunnelMode = true
 					continue
 				}
-				logger.Fatal("Could not read UDP package 1: " + err.Error())
+				logger.Fatalf("Could not read UDP package 1: " + err.Error())
 			}
 
 			// ocb_decrypt

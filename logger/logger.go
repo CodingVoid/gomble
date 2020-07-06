@@ -16,21 +16,9 @@ const (
 	FATAL Loglevel = iota // 4
 )
 
-func Debug(str string) {
-	if loglevel <= DEBUG {
-		fmt.Print("DEBUG: " + str)
-	}
-}
-
 func Debugf(format string, a ...interface{}) {
 	if loglevel <= DEBUG {
 		fmt.Printf("DEBUG: " + format, a...)
-	}
-}
-
-func Info(str string) {
-	if loglevel <= INFO {
-		fmt.Print("INFO: " + str)
 	}
 }
 
@@ -40,34 +28,15 @@ func Infof(format string, a ...interface{}) {
 	}
 }
 
-func Warn(str string) {
-	if loglevel <= WARN {
-		fmt.Print("WARN: " + str)
-	}
-}
-
 func Warnf(format string, a ...interface{}) {
 	if loglevel <= WARN {
 		fmt.Printf("WARN: " + format, a...)
 	}
 }
 
-func Error(str string) {
-	if loglevel <= ERROR {
-		fmt.Print("ERROR: " + str)
-	}
-}
-
 func Errorf(format string, a ...interface{}) {
 	if loglevel <= ERROR {
 		fmt.Printf("ERROR: " + format, a...)
-	}
-}
-
-func Fatal(str string) {
-	if loglevel <= FATAL {
-		fmt.Print("FATAL: " + str)
-		os.Exit(-1)
 	}
 }
 

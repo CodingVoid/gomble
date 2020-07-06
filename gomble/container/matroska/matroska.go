@@ -57,12 +57,12 @@ func (m *Matroska) ReadHeader() error {// {{{
 		return fmt.Errorf("ReadHeader(%s:%d): %w", file, line, err)
 	}
 	if id == Matroska_EBML {
-		logger.Debug("Found EBML Element")
+		logger.Debugf("Found EBML Element")
 		logger.Debugf("size: %d\n", elem.Len())
 	}
 	id, elem, err = m.dec.ReadElement()
 	if id == Matroska_Segment {
-		logger.Debug("Found Segment Element")
+		logger.Debugf("Found Segment Element")
 		logger.Debugf("size: %d\n", elem.Len())
 		// Parse Level 1 Elements
 		cntNeeded := 0
@@ -93,7 +93,7 @@ func (m *Matroska) ReadHeader() error {// {{{
 					_, file, line, _ := runtime.Caller(0)
 					return fmt.Errorf("ReadHeader(%s:%d): %w", file, line, err)
 				}
-				logger.Debug("Tracks:")
+				logger.Debugf("Tracks:")
 				for _, tr := range m.track.Entries {
 					logger.Debugf("Tracknumber: %d\n", tr.Number)
 					if tr.Audio != nil {
@@ -122,7 +122,7 @@ func (m *Matroska) ReadHeader() error {// {{{
 			}
 
 			if cntNeeded == 2 {
-				logger.Debug("Got all needed for playback")
+				logger.Debugf("Got all needed for playback")
 				m.dec = elem // save the point where the decoder was at
 				break
 			}
@@ -137,13 +137,13 @@ func (m *Matroska) ReadContent() error {// {{{
 	id, elem, err := m.dec.ReadElement()
 	if err != nil {
 		if err == io.EOF {
-			logger.Debug("End of Matroska File\n")
+			logger.Debugf("End of Matroska File\n")
 		}
 		return err
 	}
 	// the ebml decoder cannot parse a Cluster, because it consists of Data not encoded in EBML. So we need to do it manually
 	if id == Matroska_Cluster {
-		//logger.Debug("Found Cluster Element")
+		//logger.Debugf("Found Cluster Element")
 		//logger.Debugf("size: %d\n", elem.Len())
 		var clustertimecode time.Time
 		// looking for Cluster Timestamp
@@ -154,13 +154,13 @@ func (m *Matroska) ReadContent() error {// {{{
 				return fmt.Errorf("ReadContent(%s:%d): %w", file, line, err)
 			}
 			if id == Matroska_Timestamp {
-				//logger.Debug("Readed Timestamp successfully")
+				//logger.Debugf("Readed Timestamp successfully")
 				clustertimecode, err = elema.ReadTime()
 				if err != nil {
 					_, file, line, _ := runtime.Caller(0)
 					return fmt.Errorf("ReadContent(%s:%d): %w", file, line, err)
 				}
-				//logger.Debug("Timestamp: " + clustertimecode.String())
+				//logger.Debugf("Timestamp: " + clustertimecode.String())
 				break
 			}
 		}
@@ -170,7 +170,7 @@ func (m *Matroska) ReadContent() error {// {{{
 			id, elemb, err := elem.ReadElement()
 			if err != nil {
 				if err == io.EOF {
-					logger.Debug("End of Cluster")
+					logger.Debugf("End of Cluster")
 					break
 				}
 				_, file, line, _ := runtime.Caller(0)
@@ -183,14 +183,14 @@ func (m *Matroska) ReadContent() error {// {{{
 					id, elemc, err := elemb.ReadElement()
 					if err != nil {
 						if err == io.EOF {
-							logger.Debug("End of Blockgroup")
+							logger.Debugf("End of Blockgroup")
 							break
 						}
 						_, file, line, _ := runtime.Caller(0)
 						return fmt.Errorf("ReadContent(%s:%d): %w", file, line, err)
 					}
 					if id == Matroska_Block {
-						//logger.Debug("Found Block Element")
+						//logger.Debugf("Found Block Element")
 						m.parseBlock(elemc, clustertimecode)
 					}
 				}
@@ -292,7 +292,7 @@ func (m *Matroska) GetNextFrames(framecount int) ([]Frame, error) {// {{{
 	}
 	// if our buffer is still smaller or equals then framecount (which can only happen if EOF was reached in matroska), we just return the rest of the buffer
 	if len(m.Blocks) <= framecount {
-		logger.Debug("Matroska still does not have enough frames in blocks-buffer\n")
+		logger.Debugf("Matroska still does not have enough frames in blocks-buffer\n")
 		copy(ret[:], m.Blocks[:len(m.Blocks)])
 		m.Blocks = nil //clear buffer for garbage collector
 		return ret[:len(m.Blocks)], io.EOF

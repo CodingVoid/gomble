@@ -87,7 +87,7 @@ func (o *OggOpusfile) GetPCMFrame(duration int) ([]int16, error) {// {{{
 	if len(o.pcmbuffer) < neededSamples*2 {
 		ret := make([]int16, len(o.pcmbuffer))
 		copy(ret, o.pcmbuffer[:])
-		logger.Debug("GetPCMFrame EOF\n")
+		logger.Debugf("GetPCMFrame EOF\n")
 		return ret, io.EOF // return rest of pcmbuffer
 	}
 	logger.Debugf("Returned PCM length: %d pcmbuffer length: %d\n", neededSamples, len(o.pcmbuffer))

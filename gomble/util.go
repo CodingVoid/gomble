@@ -11,7 +11,7 @@ import (
 func WriteInt16InFile(path string, buffer []int16) {// {{{
 	file, err := os.OpenFile(path, os.O_WRONLY | os.O_TRUNC | os.O_CREATE, 0777)
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Fatalf(err.Error())
 	}
 	bufferByte := make([]byte, len(buffer)*2)
 	// Convert to little Endian ordering
@@ -21,7 +21,7 @@ func WriteInt16InFile(path string, buffer []int16) {// {{{
 	}
 
 	if _, err := file.WriteAt(bufferByte[:], 0); err != nil {
-		logger.Fatal(err.Error())
+		logger.Fatalf(err.Error())
 	}
 }// }}}
 
@@ -29,11 +29,11 @@ func WriteInt16InFile(path string, buffer []int16) {// {{{
 func writeInFile(path string, offset int64, buffer []byte) {// {{{
 	file, err := os.OpenFile(path, os.O_WRONLY | os.O_CREATE, 0666)
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Fatalf(err.Error())
 	}
 	n := 0
 	if n, err = file.WriteAt(buffer[:], offset); err != nil {
-		logger.Fatal(err.Error())
+		logger.Fatalf(err.Error())
 	}
 	logger.Debugf("Wrote %d bytes\n", n)
 	file.Close()

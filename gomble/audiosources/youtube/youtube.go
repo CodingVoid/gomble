@@ -105,30 +105,30 @@ func NewYoutubeVideo(path string) (*YoutubeVideo, error) { // {{{
 	playabilityStatus := player_response["playabilityStatus"]
 	m5 := playabilityStatus.(map[string]interface{})["status"]
 	status := m5.(string)
-	logger.Debug("status: " + status + "\n")
+	logger.Debugf("status: " + status + "\n")
 	m6 := player_response["videoDetails"]
 	m7 := m6.(map[string]interface{})["isLiveContent"]
 	isLiveContent := m7.(bool)
 	logger.Debugf("isLiveContent: %t\n", isLiveContent)
 	m8 := m6.(map[string]interface{})["lengthSeconds"]
 	lengthSeconds := m8.(string)
-	logger.Debug("length: " + lengthSeconds + "\n")
+	logger.Debugf("length: " + lengthSeconds + "\n")
 	m9 := m6.(map[string]interface{})["title"]
 	title := m9.(string)
-	logger.Debug("title: " + title + "\n")
+	logger.Debugf("title: " + title + "\n")
 	args0 := m6.(map[string]interface{})["author"]
 	author := args0.(string)
-	logger.Debug("author: " + author + "\n")
+	logger.Debugf("author: " + author + "\n")
 	m11 := m0["assets"]
 	args2 := m11.(map[string]interface{})["js"]
 	playerScript := args2.(string)
-	logger.Debug(playerScript)
+	logger.Debugf(playerScript)
 
 	// find out media formats from json
 	youtubeFormats := make([]youtubeFormat, 0)
 	m12 := args.(map[string]interface{})["adaptive_fmts"]
 	if m12 == nil {
-		logger.Debug("adaptive_fmts is nil, try another way to get formats\n")
+		logger.Debugf("adaptive_fmts is nil, try another way to get formats\n")
 		streamingData := player_response["streamingData"]
 
 		m13 := streamingData.(map[string]interface{})["formats"]
@@ -143,7 +143,7 @@ func NewYoutubeVideo(path string) (*YoutubeVideo, error) { // {{{
 
 	} else {
 		adaptive_fmts := m12.(string)
-		logger.Debug("adaptive_fmts: " + adaptive_fmts)
+		logger.Debugf("adaptive_fmts: " + adaptive_fmts)
 	}
 
 	logger.Debugf("Find best format out of %d Formats\n", len(youtubeFormats))
@@ -200,7 +200,7 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	//	playerjsurl = playerScript
 	//}
 	playerjsurl = "https://www.youtube.com" + playerScriptName
-	logger.Debug("playerjsurl: " + playerjsurl)
+	logger.Debugf("playerjsurl: " + playerjsurl)
 
 	resp, err := http.Get(playerjsurl)
 	if err != nil {
@@ -288,21 +288,21 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	}
 
 	var actionBody string = actions.FindStringSubmatch(string(byteResp))[2]
-	logger.Debug("actionBody: " + actionBody)
+	logger.Debugf("actionBody: " + actionBody)
 
 	reverseKey := extractDollarEscapedFirstGroup(reversePattern, actionBody)
-	logger.Debug("reversePattern: " + reversePattern)
+	logger.Debugf("reversePattern: " + reversePattern)
 	slicePart := extractDollarEscapedFirstGroup(slicePattern, actionBody)
-	logger.Debug("slicePattern:   " + slicePattern)
+	logger.Debugf("slicePattern:   " + slicePattern)
 	splicePart := extractDollarEscapedFirstGroup(splicePattern, actionBody)
-	logger.Debug("splicePattern:  " + splicePattern)
+	logger.Debugf("splicePattern:  " + splicePattern)
 	swapKey := extractDollarEscapedFirstGroup(swapPattern, actionBody)
-	logger.Debug("swapPattern:    " + swapPattern)
+	logger.Debugf("swapPattern:    " + swapPattern)
 
-	logger.Debug("reverseKey: " + reverseKey)
-	logger.Debug("slicePart:  " + slicePart)
-	logger.Debug("splicePart: " + splicePart)
-	logger.Debug("swapKey:    " + swapKey)
+	logger.Debugf("reverseKey: " + reverseKey)
+	logger.Debugf("slicePart:  " + slicePart)
+	logger.Debugf("splicePart: " + splicePart)
+	logger.Debugf("swapKey:    " + swapKey)
 
 	// \Q string \E = Pattern.quote = take 'string' as literal text (interpret nothing in it as a special meaning of regex) e.g.: ".*" matches regex ".*"
 	all := make([]string, 0, 4)
@@ -324,7 +324,7 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	// \Q string \E = Pattern.quote = take 'string' as literal text (interpret nothing in it as a special meaning of regex) e.g.: ".*" matches regex ".*"
 	extractor := "(?:a=)?" + `\Q` + actions.FindStringSubmatch(string(byteResp))[1] + `\E` + BEFORE_ACCESS + "(" + strings.Join(all, "|") + ")" + AFTER_ACCESS + `\(a,(\d+)\)`
 
-	logger.Debug("extractor: " + extractor)
+	logger.Debugf("extractor: " + extractor)
 	fregex := regexp.MustCompile(functionsPattern2) // checks for functions
 	if !fregex.MatchString(string(byteResp)) {
 		_, file, line, _ := runtime.Caller(0)
@@ -348,19 +348,19 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 		case swapKey:
 			param, err := strconv.ParseInt(allGroupMatches[i][2], 0, 64)
 			if err != nil {
-				logger.Fatal("Failed to parse parameter")
+				logger.Fatalf("Failed to parse parameter")
 			}
 			operations = append(operations, CipherOperation{optype: SWAP, parameter: param})
 		case splicePart:
 			param, err := strconv.ParseInt(allGroupMatches[i][2], 0, 64)
 			if err != nil {
-				logger.Fatal("Failed to parse parameter")
+				logger.Fatalf("Failed to parse parameter")
 			}
 			operations = append(operations, CipherOperation{optype: SLICE, parameter: param})
 		case slicePart:
 			param, err := strconv.ParseInt(allGroupMatches[i][2], 0, 64)
 			if err != nil {
-				logger.Fatal("Failed to parse parameter")
+				logger.Fatalf("Failed to parse parameter")
 			}
 			operations = append(operations, CipherOperation{optype: SPLICE, parameter: param})
 		}
@@ -391,7 +391,7 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 
 // Returns a Mono PCMFrame with the given duration in milliseconds
 func (y *YoutubeVideo) GetPCMFrame(duration int) ([]int16, error) {// {{{
-	logger.Debug("Called GetPCMFrame\n")
+	logger.Debugf("Called GetPCMFrame\n")
 	neededSamples := 48 * duration // 48kHz * duration in ms
 	// wait till we have the necessary pcm samples and buffer if possible
 	for len(y.pcmbuff) < neededSamples && !y.doneReading {
@@ -428,7 +428,7 @@ func (y *YoutubeVideo) GetPCMFrame(duration int) ([]int16, error) {// {{{
 	if len(y.pcmbuff) < neededSamples {
 		ret := make([]int16, len(y.pcmbuff))
 		copy(ret, y.pcmbuff[:])
-		logger.Debug("GetPCMFrame EOF\n")
+		logger.Debugf("GetPCMFrame EOF\n")
 		return ret, io.EOF // return rest of pcmbuffer
 	}
 	logger.Debugf("Returned PCM length: %d pcmbuffer length: %d\n", neededSamples, len(y.pcmbuff))
@@ -461,20 +461,20 @@ func getYoutubeFormatList(list []interface{}) []youtubeFormat {// {{{
 		l := v.(map[string]interface{})
 
 		if m1 := l["signatureCipher"]; m1 != nil { // try signatureCipher
-			logger.Debug("its signatureCipher\n")
+			logger.Debugf("its signatureCipher\n")
 			signatureCipher := m1.(string)
 			cInfo, err := GetCipherInfoFromSignatureCipher(signatureCipher)
 			if err != nil {
-				logger.Debug("Problem1.1\n")
+				logger.Debugf("Problem1.1\n")
 				continue
 			}
 			format.cinfo = cInfo
 		} else if m1 := l["url"]; m1 != nil { // try url
-			logger.Debug("its url\n")
+			logger.Debugf("its url\n")
 			url := m1.(string)
 			cInfo, err := GetCipherInfoFromUrl(url)
 			if err != nil {
-				logger.Debug("Problem1.2 " + err.Error() +  "\n")
+				logger.Debugf("Problem1.2 " + err.Error() +  "\n")
 				continue
 			}
 			// cipher operations are skipped if there is a url instead of a signatureCipher
@@ -484,39 +484,39 @@ func getYoutubeFormatList(list []interface{}) []youtubeFormat {// {{{
 
 		m2 := l["mimeType"] //TODO Do some kind of regex to differentiete between mimetype and codec
 		if m2 == nil {
-			logger.Debug("Problem3\n")
+			logger.Debugf("Problem3\n")
 			continue
 		}
 		format.mimeType = m2.(string)
 
 		m3 := l["audioSampleRate"]
 		if m3 == nil {
-			logger.Debug("Problem4\n")
+			logger.Debugf("Problem4\n")
 			continue
 		}
 		format.audioSampleRate = m3.(string)
 
 		m4 := l["audioQuality"]
 		if m4 == nil {
-			logger.Debug("Problem5\n")
+			logger.Debugf("Problem5\n")
 			continue
 		}
 		format.audioQuality = m4.(string)
 
 		m5 := l["contentLength"]
 		if m5 == nil {
-			logger.Debug("Problem6\n")
+			logger.Debugf("Problem6\n")
 			continue
 		}
 		format.contentLength = m5.(string)
 
 		m6 := l["audioChannels"]
 		if m6 == nil {
-			logger.Debug("Problem7\n")
+			logger.Debugf("Problem7\n")
 			continue
 		}
 		format.audioChannels = m6.(float64)
-		logger.Debug("Added a format\n")
+		logger.Debugf("Added a format\n")
 		formats = append(formats, format)
 	}
 	return formats
@@ -526,25 +526,25 @@ func applyOperations(operations []CipherOperation, text string) (string, error) 
 	for _, op := range operations {
 		switch op.optype {
 		case SWAP:
-			logger.Debug("SWAP Operation\n")
+			logger.Debugf("SWAP Operation\n")
 			index := op.parameter % int64(len(text))
 			tmp := text[0]
 			// strings are immutable so we cannot assign at a specified index. so we have to do it like this
 			text = string(text[index]) + text[1:]
 			text = text[:index] + string(tmp) + text[index+1:]
 		case REVERSE:
-			logger.Debug("REVERSE Operation\n")
+			logger.Debugf("REVERSE Operation\n")
 			text = Reverse(text)
 			//case SLICE:
-			//logger.Debug("SLICE Operation")
+			//logger.Debugf("SLICE Operation")
 		case SPLICE, SLICE:
-			logger.Debug("SPLICE or SLICE Operation\n")
+			logger.Debugf("SPLICE or SLICE Operation\n")
 			text = text[op.parameter:] // remove the bytes before op.paramter
 		default:
 			_, file, line, _ := runtime.Caller(0)
 			return "", fmt.Errorf("applyOperations(%s:%d): Invalid cipher operation", file, line)
 		}
-		logger.Debug("text: " + text + "\n")
+		logger.Debugf("text: " + text + "\n")
 	}
 	return text, nil
 } // }}}
@@ -581,11 +581,11 @@ func extractDollarEscapedFirstGroup(pattern string, str string) string { // {{{
 //				var f interface{}
 //				err := json.Unmarshal([]byte(vv), &f)
 //				if err != nil {
-//					logger.Fatal(err.Error())
+//					logger.Fatalf(err.Error())
 //				}
 //				m := f.(map[string]interface{})
 //				v = m
-//				logger.Fatal("Got some invalid json")
+//				logger.Fatalf("Got some invalid json")
 //				goto start
 //			}
 //			logger.Printf("%d: %s: %s\n", level, k, vv)
@@ -621,14 +621,14 @@ func GetCipherInfoFromUrl(cipherUrl string) (*cipherInfo, error) { // {{{
 
 	var info cipherInfo
 	info.url = cipherUrl
-	logger.Debug("url: " + info.url + "\n")
+	logger.Debugf("url: " + info.url + "\n")
 	//info.signature = query.Get("sig")
 	//if info.signature == "" {
 	//	return nil, errors.New("no signature in cipherurl")
 	//}
-	logger.Debug("signature: " + info.signature + "\n")
+	logger.Debugf("signature: " + info.signature + "\n")
 	info.signaturekey = "signature"
-	logger.Debug("signaturekey: " + info.signaturekey + "\n")
+	logger.Debugf("signaturekey: " + info.signaturekey + "\n")
 	return &info, nil
 } // }}}
 
@@ -642,22 +642,22 @@ func GetCipherInfoFromSignatureCipher(cipherUrl string) (*cipherInfo, error) { /
 	//query := u.Query()
 
 	var info cipherInfo
-	logger.Debug("cipherUrl: " + cipherUrl + "\n")
+	logger.Debugf("cipherUrl: " + cipherUrl + "\n")
 	info.url = query.Get("url")
 	if info.url == "" {
 		return nil, errors.New("no url in cipherurl")
 	}
-	logger.Debug("url: " + info.url + "\n")
+	logger.Debugf("url: " + info.url + "\n")
 	info.signature = query.Get("s")
 	if info.signature == "" {
 		return nil, errors.New("no signature in cipherurl")
 	}
-	logger.Debug("signature: " + info.signature + "\n")
+	logger.Debugf("signature: " + info.signature + "\n")
 	info.signaturekey = query.Get("sp")
 	if info.signaturekey == "" {
 		return nil, errors.New("no signaturekey in cipherurl")
 	}
-	logger.Debug("signaturekey: " + info.signaturekey + "\n")
+	logger.Debugf("signaturekey: " + info.signaturekey + "\n")
 	return &info, nil
 } // }}}
 

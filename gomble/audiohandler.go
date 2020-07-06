@@ -39,7 +39,7 @@ func Stop() {// {{{
 func audioroutine(track audiosources.Audiosource) {// {{{
 	enc, err := audioformats.NewOpusEncoder(audioformats.OPUS_SAMPLE_RATE, audioformats.OPUS_CHANNELS, audioformats.OPUS_APPLICATION) // initializes a new encoder
 	if err != nil {
-		logger.Error("Could not create Opus Encoder. End Track\n") //TODO break and raise done/exception event with error paramter or whatsoever
+		logger.Errorf("Could not create Opus Encoder. End Track\n") //TODO break and raise done/exception event with error paramter or whatsoever
 		eventpuffer <- TrackEndedEvent{
 			Track: track,
 			Reason: TRACK_OTHER,
@@ -55,14 +55,14 @@ func audioroutine(track audiosources.Audiosource) {// {{{
 	for _ = range timer.C {
 
 		if audiohandler.playing == false {
-			logger.Info("track/audiosource wurde unterbrochen\n")
+			logger.Infof("track/audiosource wurde unterbrochen\n")
 			eventpuffer <- TrackEndedEvent {
 				Track: track,
 				Reason: TRACK_INTERRUPTED,
 			}
 			break
 		}
-		logger.Debug("Get next opus frame\n")
+		logger.Debugf("Get next opus frame\n")
 		lastTime := time.Now()
 		opusPayload, err := getNextOpusFrame(track, enc)
 		elapsed := time.Since(lastTime)
@@ -84,7 +84,7 @@ func audioroutine(track audiosources.Audiosource) {// {{{
 	}
 	//WriteInt16InFile("pcm.final", allpcm)
 	audiohandler.playing = false
-	logger.Info("Done playing Track\n")
+	logger.Infof("Done playing Track\n")
 	eventpuffer <- TrackEndedEvent {
 		Track: track,
 		Reason: TRACK_ENDED,

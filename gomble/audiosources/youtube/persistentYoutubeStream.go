@@ -63,7 +63,7 @@ func (s *persistentYoutubeStream) Read(p []byte) (int, error) {// {{{
 }// }}}
 
 func (s *persistentYoutubeStream) RequestNext() error {// {{{
-	logger.Debug("Requesting next Youtube media/audio data\n")
+	logger.Debugf("Requesting next Youtube media/audio data\n")
 	burl, err := url.Parse(s.contentUrl)
 	if err != nil {
 		_, file, line, _ := runtime.Caller(0)
@@ -81,7 +81,7 @@ func (s *persistentYoutubeStream) RequestNext() error {// {{{
 		_, file, line, _ := runtime.Caller(0)
 		return fmt.Errorf("RequestNext(%s:%d): youtube returned %s", file, line, resp.Status)
 	}
-	logger.Debug("Successfully got next Youtube media/audio data\n")
+	logger.Debugf("Successfully got next Youtube media/audio data\n")
 	s.httpResp = resp
 	s.cposition = 0
 	return nil

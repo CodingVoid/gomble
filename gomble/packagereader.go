@@ -17,10 +17,10 @@ func readRoutine() {// {{{
 	for {
 		var data [2048]byte
 		pckType, pcksize, err := receivePacket(data[:])
-		//logger.Debug("Received entire Package")
+		//logger.Debugf("Received entire Package")
 		if err != nil {
 			conn.Close()
-			logger.Fatal("Could not receive tcp packet: " + err.Error())
+			logger.Fatalf("Could not receive tcp packet: " + err.Error())
 		}
 		printReceivedPackage(pckType, data[:pcksize])
 		handlePacket(pckType, data[:pcksize])
@@ -283,7 +283,7 @@ func printReceivedPackage(pckType uint16, data []byte) {// {{{
 	}
 	// don't print on voice packages. My eyes want to live...
 	if pckType != 1 {
-		logger.Debug(out + "\n")
+		logger.Debugf(out + "\n")
 	}
 }// }}}
 

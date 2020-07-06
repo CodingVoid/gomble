@@ -45,7 +45,7 @@ func OnChannelMessageReceived(e gomble.ChannelMessageReceivedEvent) {
 			// probably not html encoded (maybe allowHTML is off?)
 			url = strings.Fields(e.Message)[1]
 		}
-		logger.Debug(url + "\n")
+		logger.Debugf(url + "\n")
 		yt, err := youtube.NewYoutubeVideo(url)
 		if err != nil {
 			logger.Fatalf("%v", err)
