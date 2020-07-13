@@ -122,7 +122,7 @@ func getOpusFileError(prefix string, errorCode int32) error { // {{{
 	case 0:
 		str += "SUCCESS"
 	case C.OP_FALSE:
-		str += "OP_FALSE: A request did not succed"
+		str += "OP_FALSE: A request did not succeed"
 	case C.OP_EOF:
 		str += "OP_EOF: Currently not used externally"
 	case C.OP_HOLE:

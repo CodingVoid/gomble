@@ -78,10 +78,10 @@ func OnTrackEnded(e gomble.TrackEndedEvent) {
 func startNextTrack() {
 	if len(queue) > 0 {
 		t := queue[0]
-		// returns false if a track is already playing (or t == nil). returns true if starting was successfull
+		// returns false if a track is already playing (or t == nil). returns true if starting was successful
 		if gomble.Play(t, false) {
 			currentChannel.SendMessage("Start playing Track " + t.GetTitle())
-			// If successfull remove the track from the queue
+			// If successful remove the track from the queue
 			queue = queue[1:]
 		}
 	}

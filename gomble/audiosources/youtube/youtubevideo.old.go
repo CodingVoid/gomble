@@ -9,7 +9,7 @@ package youtube
 //
 //	"gomble/logger"
 //)
-//// after much time spent in trial and error I found out that youtube-dl does seem to ignore any kind of paramter if output is set to stdout (-o -), altough I can't find any of this in the documentation. Furthermore most problems I got had their origin in using youtube-dl for downloading the video/audio. It's safer to use youtube-dl only as plain donwloading and outputing to stdout of anything it can find under this url:
+//// after much time spent in trial and error I found out that youtube-dl does seem to ignore any kind of parameter if output is set to stdout (-o -), although I can't find any of this in the documentation. Furthermore most problems I got had their origin in using youtube-dl for downloading the video/audio. It's safer to use youtube-dl only as plain downloading and outputting to stdout of anything it can find under this url:
 //// youtube-dl -o - --rm-cache-dir --quiet {url}
 //
 //// -i -			takes the input of stdin
@@ -102,7 +102,7 @@ package youtube
 //		// we didn't got enough data, is ffmpeg and youtube-dl done?
 //		select {
 //		case _ = <- y.done:
-//			// Check if any problems occured with youtube-dl
+//			// Check if any problems occurred with youtube-dl
 //			if !y.ycmd.ProcessState.Success() {
 //				return nil, errors.New("Could not complete youtube-dl command with url: " + y.url + " stderr: " + y.ycmdError.String())
 //			}

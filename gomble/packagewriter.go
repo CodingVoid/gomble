@@ -96,10 +96,10 @@ func pingRoutine() { // {{{
 
 			// Receive UDP Ping Packet Answer
 			audioConn.SetReadDeadline(time.Now().Add(time.Millisecond * 500))
-			var crypted []byte = make([]byte, 1024)
-			n, err = audioConn.Read(crypted[:]) // read entire udp package
+			var encrypted []byte = make([]byte, 1024)
+			n, err = audioConn.Read(encrypted[:]) // read entire udp package
 
-			crypted = crypted[:n]
+			encrypted = encrypted[:n]
 
 			if err != nil {
 				if neterr, ok := err.(net.Error); ok && neterr.Timeout() {
@@ -112,8 +112,8 @@ func pingRoutine() { // {{{
 			}
 
 			// ocb_decrypt
-			var plain []byte = make([]byte, len(crypted))
-			audiocryptoconfig.cryptState.Decrypt(plain[:], crypted[:])
+			var plain []byte = make([]byte, len(encrypted))
+			audiocryptoconfig.cryptState.Decrypt(plain[:], encrypted[:])
 			// Now remove tag and other overhead stuff
 			plain = plain[:len(plain)-4] // ocb overhead always 4 bytes
 

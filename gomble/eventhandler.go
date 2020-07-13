@@ -28,7 +28,7 @@ var tlsconfig tls.Config
 // audioConn is our udp connection to the server. It is used by audiopackagereader.go to read packages from mumble-server and by audiopackagewriter to write packages to the mumble-server
 var audioConn *net.UDPConn
 
-// Adress and port of mumble-server in syntax address:port
+// Address and port of mumble-server in syntax address:port
 var addr string
 
 // Initializes some settings for gomble and returns an Eventhandler which can be used to add event-listeners
@@ -70,9 +70,9 @@ func Begin() {
 		logger.Fatalf("Sending Version failed: " + err.Error() + "\n")
 	}
 
-	logger.Debugf("Send Authentification")
+	logger.Debugf("Send Authentication")
 	if err := writeProto(&authPacket); err != nil {
-		logger.Fatalf("Sending Authentification failed: " + err.Error() + "\n")
+		logger.Fatalf("Sending Authentication failed: " + err.Error() + "\n")
 	}
 
 	// mumble connection established

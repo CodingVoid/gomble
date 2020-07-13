@@ -86,21 +86,21 @@ func sendAudioPacket(opusPayload []byte, opusPayloadlen uint16, last bool) {
 			logger.Fatalf("Error writing to tls connection\n")
 		}
 		if n < len(all) {
-			logger.Fatalf("Weniger geschrieben als gedacht\n")
+			logger.Fatalf("Did not write as much as expected\n")
 		}
 	} else {
 		// encrypt ocb2-aes
 		var allencrypted []byte = make([]byte, len(all)-2) //ocb2 overhead is always 4 byte, but for UDP we don't need 2 bytes package type and 4 bytes package length (4-2-4 = -2)
 		audiocryptoconfig.cryptState.Encrypt(allencrypted[:], all[6:])
 		logger.Debugf("Send via UDP\n")
-		// send ocb2-aes encrytped udp package
+		// send ocb2-aes encrypted udp package
 		n, err := audioConn.Write(allencrypted[:])
 
 		if err != nil {
 			logger.Fatalf("Error writing to UDP connection")
 		}
 		if n < len(allencrypted) {
-			logger.Fatalf("Weniger geschrieben als gedacht")
+			logger.Fatalf("Did not write as much as expected")
 		}
 	}
 

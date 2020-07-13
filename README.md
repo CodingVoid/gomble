@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/CodingVoid/gomble)](https://goreportcard.com/report/github.com/CodingVoid/gomble)
 # gomble
 mumble library written in go. Intended for writing client side music bots.
 

@@ -17,7 +17,7 @@ type persistentYoutubeStream struct {
 	contentLength int
 	// The current http response that is in use
 	httpResp *http.Response
-	// byte array to save all the incoming data (usefull for seeking)
+	// byte array to save all the incoming data (useful for seeking)
 	//save []byte
 }
 
@@ -40,7 +40,7 @@ func (s *persistentYoutubeStream) Read(p []byte) (int, error) { // {{{
 	if err != nil {
 		// Check if error was end of file
 		if err != io.EOF {
-			logger.Debugf("Hier IST DAS MUHAHAHAH, body length: %d, readed: %d, to read: %d, already readed: %d, %v\n", s.httpResp.ContentLength, n, len(p), s.cposition, err)
+			logger.Warnf("Got Error while reading from http Response of youtube stream. Trying to connect again..., body length: %d, readed: %d, to read: %d, already readed: %d, %v\n", s.httpResp.ContentLength, n, len(p), s.cposition, err)
 			// try to "reconnect" (just request the remaining audiodata again)
 			err = s.RequestNext()
 			// here we will return 0 data even though there is still data left (so keep in mind that this function does not always return len(p) audiodata)
@@ -49,9 +49,8 @@ func (s *persistentYoutubeStream) Read(p []byte) (int, error) { // {{{
 	}
 	s.cposition += n
 	s.aposition += n
-	//s.save = append(s.save, p[:n]...) // save everything that has been readed so far (//TODO implement seeking)
 	// Check if that is the end of the http response
-	if s.httpResp.ContentLength == int64(s.cposition) {
+	if err == io.EOF {
 		// Check if the complete stream is at the end
 		if s.aposition == s.contentLength {
 			return n, io.EOF
@@ -70,7 +69,7 @@ func (s *persistentYoutubeStream) RequestNext() error { // {{{
 		return fmt.Errorf("RequestNext(%s:%d): %w", file, line, err)
 	}
 	val := burl.Query()                                                  // get values of url
-	val.Set("range", fmt.Sprintf("%d-%d", s.aposition, s.contentLength)) // set range paramter for value
+	val.Set("range", fmt.Sprintf("%d-%d", s.aposition, s.contentLength)) // set range parameter for value
 	burl.RawQuery = val.Encode()                                         // set values to url
 	resp, err := http.Get(burl.String())
 	if err != nil {

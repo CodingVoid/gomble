@@ -27,7 +27,7 @@ const (
 	TRACK_INTERRUPTED = iota
 	// Track ended playing because Track was over
 	TRACK_ENDED
-	// Some other failure occured. The Logs should be checked for further Information
+	// Some other failure occurred. The Logs should be checked for further Information
 	TRACK_OTHER
 )
 

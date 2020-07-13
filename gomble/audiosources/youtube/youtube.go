@@ -35,7 +35,7 @@ func NewYoutubeVideo(path string) (*YoutubeVideo, error) { // {{{
 	var jsonstr string
 	// The following loop is for trying up to 3 times to download the youtube page and find a specific json string in it. You might not believe but it doesn't always work on the first try...
 	var i int
-	for i=0; i < 3 && len(jsonstr) == 0; i++ {
+	for i = 0; i < 3 && len(jsonstr) == 0; i++ {
 		resp, err := http.Get(path)
 		//resp, err := http.Get("https://www.youtube.com/watch?v=YO1GBsuzTWU")
 		if err != nil {
@@ -546,7 +546,7 @@ func applyOperations(operations []CipherOperation, text string) (string, error) 
 			//logger.Debugf("SLICE Operation")
 		case SPLICE, SLICE:
 			logger.Debugf("SPLICE or SLICE Operation\n")
-			text = text[op.parameter:] // remove the bytes before op.paramter
+			text = text[op.parameter:] // remove the bytes before op.parameter
 		default:
 			_, file, line, _ := runtime.Caller(0)
 			return "", fmt.Errorf("applyOperations(%s:%d): Invalid cipher operation", file, line)

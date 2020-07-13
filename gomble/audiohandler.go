@@ -37,11 +37,11 @@ func Stop() { // {{{
 	audiohandler.playing = false
 } // }}}
 
-// This audioroutine get's called whenever a new audio stream should be played
+// This audioroutine gets called whenever a new audio stream should be played
 func audioroutine(track audiosources.Audiosource) { // {{{
 	enc, err := audioformats.NewOpusEncoder(audioformats.OPUS_SAMPLE_RATE, audioformats.OPUS_CHANNELS, audioformats.OPUS_APPLICATION) // initializes a new encoder
 	if err != nil {
-		logger.Errorf("Could not create Opus Encoder. End Track\n") //TODO break and raise done/exception event with error paramter or whatsoever
+		logger.Errorf("Could not create Opus Encoder. End Track\n") //TODO break and raise done/exception event with error parameter or whatsoever
 		eventpuffer <- TrackEndedEvent{
 			Track:  track,
 			Reason: TRACK_OTHER,
