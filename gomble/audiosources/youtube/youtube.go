@@ -33,7 +33,9 @@ type YoutubeVideo struct {
 
 func NewYoutubeVideo(path string) (*YoutubeVideo, error) { // {{{
 	var jsonstr string
-	for len(jsonstr) == 0 {
+	// The following loop is for trying up to 3 times to download the youtube page and find a specific json string in it. You might not believe but it doesn't always work on the first try...
+	var i int
+	for i=0; i < 3 && len(jsonstr) == 0; i++ {
 		resp, err := http.Get(path)
 		//resp, err := http.Get("https://www.youtube.com/watch?v=YO1GBsuzTWU")
 		if err != nil {
@@ -58,16 +60,21 @@ func NewYoutubeVideo(path string) (*YoutubeVideo, error) { // {{{
 		//	return nil, fmt.Errorf("NewYoutubeVideo(%s:%d): %w", file, line, err)
 		//}
 		html := string(body)
-		regex, err := regexp.Compile("ytplayer.config = {.*};ytplayer.load")
+		regex, err := regexp.Compile("ytplayer.config = {.*};ytplayer.web_player_context_config")
 		if err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			return nil, fmt.Errorf("NewYoutubeVideo(%s:%d): %w", file, line, err)
 		}
 		jsonstr = regex.FindString(html)
 	}
+	if i == 3 {
+		_, file, line, _ := runtime.Caller(0)
+		return nil, fmt.Errorf("NewYoutubeVideo(%s:%d): Tried 3 times to Download and find ytplayer.config jsonstr. Done trying... ", file, line)
+	}
 
 	// parse JSON
-	jsonstr = jsonstr[18 : len(jsonstr)-14]
+	jsonstr = jsonstr[18 : len(jsonstr)-35]
+
 	//file, err := os.OpenFile("youtube.json", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0777)
 	//if err != nil {
 	//	_, file, line, _ := runtime.Caller(0)
