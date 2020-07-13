@@ -18,31 +18,31 @@ const (
 
 func Debugf(format string, a ...interface{}) {
 	if loglevel <= DEBUG {
-		fmt.Printf("DEBUG: " + format, a...)
+		fmt.Printf("DEBUG: "+format, a...)
 	}
 }
 
 func Infof(format string, a ...interface{}) {
 	if loglevel <= INFO {
-		fmt.Printf("INFO: " + format, a...)
+		fmt.Printf("INFO: "+format, a...)
 	}
 }
 
 func Warnf(format string, a ...interface{}) {
 	if loglevel <= WARN {
-		fmt.Printf("WARN: " + format, a...)
+		fmt.Printf("WARN: "+format, a...)
 	}
 }
 
 func Errorf(format string, a ...interface{}) {
 	if loglevel <= ERROR {
-		fmt.Printf("ERROR: " + format, a...)
+		fmt.Printf("ERROR: "+format, a...)
 	}
 }
 
 func Fatalf(format string, a ...interface{}) {
 	if loglevel <= FATAL {
-		fmt.Printf("FATAL: " + format, a...)
+		fmt.Printf("FATAL: "+format, a...)
 		os.Exit(-1)
 	}
 }

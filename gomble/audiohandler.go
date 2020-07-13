@@ -2,6 +2,7 @@ package gomble
 
 import "time"
 import "io"
+
 //import "os"
 import "fmt"
 
@@ -12,12 +13,13 @@ import "github.com/CodingVoid/gomble/logger"
 type Audiohandler struct {
 	playing bool
 }
+
 var audiohandler Audiohandler
 
 //param track The track to start playing, passing nil and interrupt true will stop the current track and return false
 //param interrupt Whether to only start if nothing else is playing, passing an audiosource and interrupt false (and a audiotrack is currently playing) will return false and not start the track
 //return True if the track was started
-func Play(track audiosources.Audiosource, interrupt bool) bool {// {{{
+func Play(track audiosources.Audiosource, interrupt bool) bool { // {{{
 	if interrupt {
 		Stop()
 	}
@@ -28,20 +30,20 @@ func Play(track audiosources.Audiosource, interrupt bool) bool {// {{{
 	go audioroutine(track)
 
 	return true
-}// }}}
+} // }}}
 
 // Stops the current Track if one is playing
-func Stop() {// {{{
+func Stop() { // {{{
 	audiohandler.playing = false
-}// }}}
+} // }}}
 
 // This audioroutine get's called whenever a new audio stream should be played
-func audioroutine(track audiosources.Audiosource) {// {{{
+func audioroutine(track audiosources.Audiosource) { // {{{
 	enc, err := audioformats.NewOpusEncoder(audioformats.OPUS_SAMPLE_RATE, audioformats.OPUS_CHANNELS, audioformats.OPUS_APPLICATION) // initializes a new encoder
 	if err != nil {
 		logger.Errorf("Could not create Opus Encoder. End Track\n") //TODO break and raise done/exception event with error paramter or whatsoever
 		eventpuffer <- TrackEndedEvent{
-			Track: track,
+			Track:  track,
 			Reason: TRACK_OTHER,
 		}
 		return
@@ -52,12 +54,12 @@ func audioroutine(track audiosources.Audiosource) {// {{{
 	//if err != nil {
 	//	logger.Fatal("...")
 	//}
-	for _ = range timer.C {
+	for range timer.C {
 
 		if audiohandler.playing == false {
 			logger.Infof("track/audiosource wurde unterbrochen\n")
-			eventpuffer <- TrackEndedEvent {
-				Track: track,
+			eventpuffer <- TrackEndedEvent{
+				Track:  track,
 				Reason: TRACK_INTERRUPTED,
 			}
 			break
@@ -79,20 +81,19 @@ func audioroutine(track audiosources.Audiosource) {// {{{
 		}
 		sendAudioPacket(opusPayload, uint16(len(opusPayload)), last)
 
-
 		//file.Write(opusPayload)
 	}
 	//WriteInt16InFile("pcm.final", allpcm)
 	audiohandler.playing = false
 	logger.Infof("Done playing Track\n")
-	eventpuffer <- TrackEndedEvent {
-		Track: track,
+	eventpuffer <- TrackEndedEvent{
+		Track:  track,
 		Reason: TRACK_ENDED,
 	}
-}// }}}
+} // }}}
 
 //var allpcm []int16
-func getNextOpusFrame(track audiosources.Audiosource, encoder *audioformats.OpusEncoder) ([]byte, error) {// {{{
+func getNextOpusFrame(track audiosources.Audiosource, encoder *audioformats.OpusEncoder) ([]byte, error) { // {{{
 	//pcm, err := track.GetPCMFrame(audioformats.OPUS_PCM_FRAME_SIZE * audioformats.OPUS_CHANNELS)
 	pcm, err := track.GetPCMFrame(audioformats.OPUS_FRAME_DURATION)
 	//allpcm = append(allpcm, pcm...)
@@ -107,4 +108,4 @@ func getNextOpusFrame(track audiosources.Audiosource, encoder *audioformats.Opus
 		return nil, fmt.Errorf("Could not encode PCM-Frame: %v", err)
 	}
 	return opus, nil
-}// }}}
+} // }}}

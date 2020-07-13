@@ -14,7 +14,7 @@ package youtube
 //
 //// -i -			takes the input of stdin
 //// -ac 1		downmixes to mono
-//// -ar 48000	tells ffmpeg to resample the audio to 48000Hz 
+//// -ar 48000	tells ffmpeg to resample the audio to 48000Hz
 //// -f s16le		sets the output format to signed 16 bit little endian pcm audio
 //// ffmpeg -i - -ac 1 -ar 48000 -f s16le -
 //type youtubevideo struct {
@@ -90,7 +90,7 @@ package youtube
 //}
 //// Current ffmpeg conversion from stereo to mono:
 ////  Warning: Any out of phase stereo will cancel out.
-//// The following filtergraph can be used to bring out of phase stereo in phase prior to downmixing: 
+//// The following filtergraph can be used to bring out of phase stereo in phase prior to downmixing:
 //// -af "asplit[a],aphasemeter=video=0,ametadata=select:key=lavfi.aphasemeter.phase:value=-0.005:function=less,pan=1c|c0=c0,aresample=async=1:first_pts=0,[a]amix"
 //
 //// return a buffered pcm frame with framesize number of samples

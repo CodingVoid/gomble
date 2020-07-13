@@ -1,13 +1,13 @@
 package ebml
 
 import (
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"io"
 	"math"
 	"reflect"
 	"time"
-	"bytes"
 )
 
 const (

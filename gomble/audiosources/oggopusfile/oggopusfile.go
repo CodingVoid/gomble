@@ -15,15 +15,15 @@ import "fmt"
 import "github.com/CodingVoid/gomble/logger"
 
 type OggOpusfile struct {
-	path   string
-	pcmbuffer []int16
+	path        string
+	pcmbuffer   []int16
 	doneReading bool
-	opFile *C.struct_OggOpusFile
+	opFile      *C.struct_OggOpusFile
 }
 
 // Opens the Opus File for later Decoding (see DecodeOpusFile)
 // path The path to the file to open.
-func NewOggOpusfile(path string) (*OggOpusfile, error) {// {{{
+func NewOggOpusfile(path string) (*OggOpusfile, error) { // {{{
 	var f OggOpusfile
 	f.path = path
 	f.pcmbuffer = make([]int16, 0)
@@ -32,18 +32,18 @@ func NewOggOpusfile(path string) (*OggOpusfile, error) {// {{{
 	errPointer := (*C.int)(unsafe.Pointer(&err))
 
 	f.opFile = C.op_open_file(C.CString(path), errPointer)
-	if (err != 0) {
+	if err != 0 {
 		//C.free(unsafe.Pointer(oggFile))
 		return nil, getOpusFileError("", err)
 	}
 	//C.free(unsafe.Pointer(errPointer))
 	return &f, nil
-}// }}}
+} // }}}
 
 //Get the total PCM length (number of samples at 48 kHz) of the stream, or of an individual link in a (possibly-chained) Ogg Opus stream.
 //	link	The index of the link whose PCM length should be computed. Use a negative number to get the PCM length of the entire stream.
 //	Returns The PCM length of the entire stream if _li is negative, the PCM length of link _li if it is non-negative
-func (o *OggOpusfile) GetTotalPCMSamples(link int) (int64, error) {// {{{
+func (o *OggOpusfile) GetTotalPCMSamples(link int) (int64, error) { // {{{
 	var csamples C.ogg_int64_t
 	csamples = C.op_pcm_total(o.opFile, C.int(link))
 	samples := int64(csamples)
@@ -53,7 +53,7 @@ func (o *OggOpusfile) GetTotalPCMSamples(link int) (int64, error) {// {{{
 		return samples, fmt.Errorf("GetPCMFrame(%s:%d): %s", file, line, getOpusFileError("", int32(samples)))
 	}
 	return samples, nil
-}// }}}
+} // }}}
 
 // Returns channel count of the audiosource
 func (o *OggOpusfile) GetChannels() (int, error) {
@@ -61,25 +61,25 @@ func (o *OggOpusfile) GetChannels() (int, error) {
 }
 
 // Get a slice of PCM Data of Opus File
-func (o *OggOpusfile) GetPCMFrame(duration int) ([]int16, error) {// {{{
-	neededSamples := duration * 48  // duration * 48kHz sampleRate
+func (o *OggOpusfile) GetPCMFrame(duration int) ([]int16, error) { // {{{
+	neededSamples := duration * 48 // duration * 48kHz sampleRate
 	for len(o.pcmbuffer) < neededSamples*2 && !o.doneReading {
 		var pcm [11520]int16
 		cpcm := (*C.opus_int16)(unsafe.Pointer(&pcm[0]))
 
 		cntSamples := C.op_read_stereo(o.opFile, cpcm, C.int(len(pcm))) // returns the readed samples per channel
-		if (cntSamples < 0) {
+		if cntSamples < 0 {
 			_, file, line, _ := runtime.Caller(0)
 			return nil, fmt.Errorf("GetPCMFrame(%s:%d): %s", file, line, getOpusFileError("", int32(cntSamples)))
 		}
-		if (cntSamples == 0) {
+		if cntSamples == 0 {
 			//logger.Debugf("End-Of-File reached or Buffer to small\n");
 			o.doneReading = true
 			break
 		}
-		mono :=  make([]int16, cntSamples)
+		mono := make([]int16, cntSamples)
 		// Convert Stereo to Mono
-		for j:=0; j<int(cntSamples); j++ {
+		for j := 0; j < int(cntSamples); j++ {
 			mono[j] = (pcm[j*2])
 		}
 		o.pcmbuffer = append(o.pcmbuffer, mono...)
@@ -95,7 +95,7 @@ func (o *OggOpusfile) GetPCMFrame(duration int) ([]int16, error) {// {{{
 	copy(ret, o.pcmbuffer[:neededSamples])
 	o.pcmbuffer = o.pcmbuffer[neededSamples:]
 	return ret, nil
-}// }}}
+} // }}}
 
 //func OpRead(oggFile OggOpusFile, pcm []int16, pcmlen uint32) (int32, error) {
 //	var ccntSamples C.int
@@ -116,7 +116,7 @@ func (o *OggOpusfile) GetTitle() string {
 	return "example title"
 }
 
-func getOpusFileError(prefix string, errorCode int32) error {// {{{
+func getOpusFileError(prefix string, errorCode int32) error { // {{{
 	str := prefix
 	switch errorCode {
 	case 0:
@@ -155,4 +155,4 @@ func getOpusFileError(prefix string, errorCode int32) error {// {{{
 		str += "unknown errorCode: " + strconv.Itoa(int(errorCode))
 	}
 	return errors.New(str)
-}// }}}
+} // }}}

@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"net/url"
 	//"os"
+	"errors"
+	"fmt"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
-	"runtime"
-	"fmt"
-	"errors"
 )
 
 type YoutubeVideo struct {
@@ -25,10 +25,10 @@ type YoutubeVideo struct {
 	pcmbuffoff   int
 	timeoffset   int
 	// opus decoder
-	dec          *audioformats.OpusDecoder
-	doneReading	 bool
+	dec         *audioformats.OpusDecoder
+	doneReading bool
 
-	title		 string
+	title string
 }
 
 func NewYoutubeVideo(path string) (*YoutubeVideo, error) { // {{{
@@ -180,13 +180,13 @@ func NewYoutubeVideo(path string) (*YoutubeVideo, error) { // {{{
 		matroskacont: matroskcont,
 		dec:          odec,
 		pcmbuff:      make([]int16, 0, 960),
-		title:		  title,
+		title:        title,
 		doneReading:  false,
 	}
 	return y, nil
 } // }}}
 
-func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, error) {// {{{
+func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, error) { // {{{
 	if format.cinfo.skip {
 		return format.cinfo.url, nil
 	}
@@ -221,11 +221,11 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	//"return a\\.join\\(\"\"\\)" +
 	//"\\}"
 	functionsPattern2 := `` +
-	`function(?: ` + VARNAME + `)?\(a\)\{a=a\.split\(""\);\s*(` +
-	`(?:` +
-	`(?:a=)?` + VARNAME + `(?:\[\"|\.)` + VARNAME + `(?:\"\]|)\(a,\d+\);` +
-	`)+` +
-	`)return a\.join\(""\)\}`
+		`function(?: ` + VARNAME + `)?\(a\)\{a=a\.split\(""\);\s*(` +
+		`(?:` +
+		`(?:a=)?` + VARNAME + `(?:\[\"|\.)` + VARNAME + `(?:\"\]|)\(a,\d+\);` +
+		`)+` +
+		`)return a\.join\(""\)\}`
 
 	//actionsPattern := "" +
 	//"var (" + VARIABLE_PART + ")=\\{((?:(?:" +
@@ -235,27 +235,27 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	//VARIABLE_PART_DEFINE + SWAP_PART +
 	//"),?\\n?)+)\\};"
 	actionsPattern2 := `` +
-	`var (` + VARNAME + `)=\{` +
-	`(` +
-	`(?:` +
-	`(?:` +
-	`\"?` + VARNAME + `\"?:function\(a\)\{(?:` +
-	`return ` +
-	`)?a\.reverse\(\)\}` +
-	`|` +
-	`\"?` + VARNAME + `\"?:function\(a,b\)\{return a\.slice\(b\)\}` +
-	`|` +
-	`\"?` + VARNAME + `\"?:function\(a,b\)\{a\.splice\(0,b\)\}` +
-	`|` +
-	`\"?` + VARNAME + `\"?:function\(a,b\)\{var c=a\[0\];a\[0\]=a\[b%a\.length\];a\[b(?:` +
-	`%a.length|` +
-	`)\]=c(?:` +
-	`;return a` +
-	`)?\}` +
-	`),?\n?` +
-	`)+` +
-	`)` +
-	`\};`
+		`var (` + VARNAME + `)=\{` +
+		`(` +
+		`(?:` +
+		`(?:` +
+		`\"?` + VARNAME + `\"?:function\(a\)\{(?:` +
+		`return ` +
+		`)?a\.reverse\(\)\}` +
+		`|` +
+		`\"?` + VARNAME + `\"?:function\(a,b\)\{return a\.slice\(b\)\}` +
+		`|` +
+		`\"?` + VARNAME + `\"?:function\(a,b\)\{a\.splice\(0,b\)\}` +
+		`|` +
+		`\"?` + VARNAME + `\"?:function\(a,b\)\{var c=a\[0\];a\[0\]=a\[b%a\.length\];a\[b(?:` +
+		`%a.length|` +
+		`)\]=c(?:` +
+		`;return a` +
+		`)?\}` +
+		`),?\n?` +
+		`)+` +
+		`)` +
+		`\};`
 
 	PATTERN_PREFIX := `(?:^|,)\"?(` + VARNAME + `)\"?`
 
@@ -263,7 +263,7 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	SLICE_PART := `:function\(a,b\)\{return a\.slice\(b\)\}`
 	SPLICE_PART := `:function\(a,b\)\{a\.splice\(0,b\)\}`
 	SWAP_PART := `:function\(a,b\)\{` +
-	`var c=a\[0\];a\[0\]=a\[b%a\.length\];a\[b(?:%a.length|)\]=c(?:;return a)?\}`
+		`var c=a\[0\];a\[0\]=a\[b%a\.length\];a\[b(?:%a.length|)\]=c(?:;return a)?\}`
 
 	reversePattern := "(?m)" + PATTERN_PREFIX + REVERSE_PART // (?m) = multiline mode
 	slicePattern := "(?m)" + PATTERN_PREFIX + SLICE_PART
@@ -284,7 +284,7 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	//}
 	if !actions.MatchString(string(byteResp)) {
 		_, file, line, _ := runtime.Caller(0)
-		return "", fmt.Errorf("NewYoutubeVideo(%s:%d): Must find action functions from script: " + playerjsurl, file, line)
+		return "", fmt.Errorf("NewYoutubeVideo(%s:%d): Must find action functions from script: "+playerjsurl, file, line)
 	}
 
 	var actionBody string = actions.FindStringSubmatch(string(byteResp))[2]
@@ -387,10 +387,10 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string) (string, e
 	val.Set(format.cinfo.signaturekey, appliedSig)
 	burl.RawQuery = val.Encode()
 	return burl.String(), nil
-}// }}}
+} // }}}
 
 // Returns a Mono PCMFrame with the given duration in milliseconds
-func (y *YoutubeVideo) GetPCMFrame(duration int) ([]int16, error) {// {{{
+func (y *YoutubeVideo) GetPCMFrame(duration int) ([]int16, error) { // {{{
 	logger.Debugf("Called GetPCMFrame\n")
 	neededSamples := 48 * duration // 48kHz * duration in ms
 	// wait till we have the necessary pcm samples and buffer if possible
@@ -409,7 +409,7 @@ func (y *YoutubeVideo) GetPCMFrame(duration int) ([]int16, error) {// {{{
 		//	return nil, err
 		//}
 		//frameduration := 48000 / samples
-		for i:=0; i<len(nextFrame); i++ {
+		for i := 0; i < len(nextFrame); i++ {
 			pcm, err := y.dec.Decode(nextFrame[i].Audiodata)
 			if err != nil {
 				_, file, line, _ := runtime.Caller(0)
@@ -436,7 +436,7 @@ func (y *YoutubeVideo) GetPCMFrame(duration int) ([]int16, error) {// {{{
 	copy(ret, y.pcmbuff[:neededSamples])
 	y.pcmbuff = y.pcmbuff[neededSamples:]
 	return ret, nil
-}// }}}
+} // }}}
 
 func (y *YoutubeVideo) GetTitle() string {
 	return y.title
@@ -454,7 +454,7 @@ const (
 	SPLICE
 )
 
-func getYoutubeFormatList(list []interface{}) []youtubeFormat {// {{{
+func getYoutubeFormatList(list []interface{}) []youtubeFormat { // {{{
 	formats := make([]youtubeFormat, 0)
 	for _, v := range list {
 		var format youtubeFormat
@@ -474,7 +474,7 @@ func getYoutubeFormatList(list []interface{}) []youtubeFormat {// {{{
 			url := m1.(string)
 			cInfo, err := GetCipherInfoFromUrl(url)
 			if err != nil {
-				logger.Debugf("Problem1.2 " + err.Error() +  "\n")
+				logger.Debugf("Problem1.2 " + err.Error() + "\n")
 				continue
 			}
 			// cipher operations are skipped if there is a url instead of a signatureCipher
@@ -520,7 +520,7 @@ func getYoutubeFormatList(list []interface{}) []youtubeFormat {// {{{
 		formats = append(formats, format)
 	}
 	return formats
-}// }}}
+} // }}}
 
 func applyOperations(operations []CipherOperation, text string) (string, error) { // {{{
 	for _, op := range operations {
@@ -608,8 +608,9 @@ type cipherInfo struct {
 	signature    string
 	url          string
 	// skip cipher operations?
-	skip		 bool
+	skip bool
 }
+
 // takes a url as string and returns a cipherinfo based on the json "signatureCipher"
 func GetCipherInfoFromUrl(cipherUrl string) (*cipherInfo, error) { // {{{
 	//query, err := url.ParseQuery(cipherUrl)

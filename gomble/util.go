@@ -1,15 +1,15 @@
 package gomble
 
 import (
-	"os"
 	"fmt"
+	"os"
 
 	"github.com/CodingVoid/gomble/logger"
 )
 
 // write int16 buffer in file of path with offset
-func WriteInt16InFile(path string, buffer []int16) {// {{{
-	file, err := os.OpenFile(path, os.O_WRONLY | os.O_TRUNC | os.O_CREATE, 0777)
+func WriteInt16InFile(path string, buffer []int16) { // {{{
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0777)
 	if err != nil {
 		logger.Fatalf(err.Error())
 	}
@@ -23,11 +23,11 @@ func WriteInt16InFile(path string, buffer []int16) {// {{{
 	if _, err := file.WriteAt(bufferByte[:], 0); err != nil {
 		logger.Fatalf(err.Error())
 	}
-}// }}}
+} // }}}
 
 // write buffer in file of path with offset
-func writeInFile(path string, offset int64, buffer []byte) {// {{{
-	file, err := os.OpenFile(path, os.O_WRONLY | os.O_CREATE, 0666)
+func writeInFile(path string, offset int64, buffer []byte) { // {{{
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		logger.Fatalf(err.Error())
 	}
@@ -37,34 +37,34 @@ func writeInFile(path string, offset int64, buffer []byte) {// {{{
 	}
 	logger.Debugf("Wrote %d bytes\n", n)
 	file.Close()
-}// }}}
+} // }}}
 
 // takes a prefix and a Byte Array and returns a string which contains the prefix + all byte array elements in a readable format
-func formatByteArray(prefix string, data []byte) string {// {{{
+func formatByteArray(prefix string, data []byte) string { // {{{
 	out := prefix
 	for _, b := range data {
 		out += fmt.Sprintf("%02X ", b)
 	}
 	out += "\n"
 	return out
-}// }}}
+} // }}}
 
 // takes a prefix and a uint32 Array and returns a string which contains the prefix + all uint32 array elements in a readable format
-func formatUint32Array(prefix string, data []uint32) string {// {{{
+func formatUint32Array(prefix string, data []uint32) string { // {{{
 	out := prefix
 	for _, u := range data {
 		out += fmt.Sprintf("%d ", u)
 	}
 	out += "\n"
 	return out
-}// }}}
+} // }}}
 
 // takes a prefix and a string Array and returns a string which contains the prefix + all string array elements in a readable format
-func formatStringArray(prefix string, data []string) string {// {{{
+func formatStringArray(prefix string, data []string) string { // {{{
 	out := prefix
 	for index, s := range data {
 		out += fmt.Sprintf("%i: %s", index, s)
 	}
 	out += "\n"
 	return out
-}// }}}
+} // }}}

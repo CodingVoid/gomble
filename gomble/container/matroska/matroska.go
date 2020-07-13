@@ -8,7 +8,7 @@ import "github.com/CodingVoid/gomble/gomble/audioformats"
 import "github.com/CodingVoid/gomble/logger"
 import "runtime"
 
-type Matroska struct {// {{{
+type Matroska struct { // {{{
 	//clusters []Cluster
 	//Metadata *File
 
@@ -31,12 +31,12 @@ type Matroska struct {// {{{
 	Blocks []Frame
 
 	doneReadingMatroska bool
-}// }}}
+} // }}}
 
 type Frame struct {
-	ClusterTimecode time.Time
+	ClusterTimecode   time.Time
 	RelativeBlockTime int16
-	Audiodata []byte
+	Audiodata         []byte
 }
 
 func NewMatroska(reader io.Reader) *Matroska {
@@ -50,7 +50,7 @@ func NewMatroska(reader io.Reader) *Matroska {
 	return m
 }
 
-func (m *Matroska) ReadHeader() error {// {{{
+func (m *Matroska) ReadHeader() error { // {{{
 	id, elem, err := m.dec.ReadElement()
 	if err != nil {
 		_, file, line, _ := runtime.Caller(0)
@@ -130,10 +130,10 @@ func (m *Matroska) ReadHeader() error {// {{{
 	}
 	return nil
 	////TODO use some other STUFF that got decoded
-}// }}}
+} // }}}
 
 // Read another Cluster (if the next element is a cluster)
-func (m *Matroska) ReadContent() error {// {{{
+func (m *Matroska) ReadContent() error { // {{{
 	id, elem, err := m.dec.ReadElement()
 	if err != nil {
 		if err == io.EOF {
@@ -203,9 +203,9 @@ func (m *Matroska) ReadContent() error {// {{{
 		logger.Debugf("expected Cluster got: 0x%08x\n", id)
 	}
 	return nil
-}// }}}
+} // }}}
 
-func (m *Matroska) parseBlock(reader *ebml.Reader, clusterTimecode time.Time) error {// {{{
+func (m *Matroska) parseBlock(reader *ebml.Reader, clusterTimecode time.Time) error { // {{{
 	//logger.Debugf("size: %d\n", reader.Len())
 	b := make([]byte, reader.Len())
 	n, err := reader.Read(b[:])
@@ -264,17 +264,17 @@ func (m *Matroska) parseBlock(reader *ebml.Reader, clusterTimecode time.Time) er
 	}
 
 	block := Frame{
-		ClusterTimecode: clusterTimecode,
+		ClusterTimecode:   clusterTimecode,
 		RelativeBlockTime: blocktimecode,
-		Audiodata: remaining,
+		Audiodata:         remaining,
 	}
 	m.Blocks = append(m.Blocks, block)
 	return nil
-}// }}}
+} // }}}
 
 //TODO need to return the Audiodata and not something specific for matroska like Frame (so I  can use the Interface MediaContainer properly)
 // gets and removes the next matroska 'framecount' frames from the framebuffer
-func (m *Matroska) GetNextFrames(framecount int) ([]Frame, error) {// {{{
+func (m *Matroska) GetNextFrames(framecount int) ([]Frame, error) { // {{{
 	ret := make([]Frame, framecount)
 	if !m.doneReadingMatroska {
 		// Check if we have enough Blocks buffered
@@ -305,7 +305,7 @@ func (m *Matroska) GetNextFrames(framecount int) ([]Frame, error) {// {{{
 	logger.Debugf("Matroska return frames: %d\n", len(ret))
 	m.Blocks = m.Blocks[framecount:] // we do not want to use so much memory so we cut the parts we don't need anymore off
 	return ret[:framecount], nil
-}// }}}
+} // }}}
 
 func (m *Matroska) GetAudioCodec() audioformats.Codec {
 	if m.satrack.CodecID == "A_OPUS" {
@@ -320,270 +320,270 @@ func readInt16(b []byte) int16 {
 }
 
 // Matroska element types
-const (// {{{
+const ( // {{{
 	// Level 0 Elements
 	Matroska_EBML    = 0x1A45DFA3
 	Matroska_Segment = 0x18538067
 
 	// Header Elements
-	Matroska_Version = 0x4286 // Level 1
-	Matroska_EBMLMaxIDLength = 0x42F2 // Level 1
+	Matroska_Version           = 0x4286 // Level 1
+	Matroska_EBMLMaxIDLength   = 0x42F2 // Level 1
 	Matroska_EBMLMaxSizeLength = 0x42F3 // Level 1
 
 	// Meta Seek Information Elements
-	Matroska_SeekHead = 0x114D9B74 // Level 1
-	Matroska_Seek = 0x4DBB // Level 2
-	Matroska_SeekID = 0x53AB // Level 3
-	Matroska_SeekPosition = 0x53AC // Level 3
+	Matroska_SeekHead     = 0x114D9B74 // Level 1
+	Matroska_Seek         = 0x4DBB     // Level 2
+	Matroska_SeekID       = 0x53AB     // Level 3
+	Matroska_SeekPosition = 0x53AC     // Level 3
 
 	// Segment Information
-	Matroska_Info = 0x1549A966 // Level 1
-	Matroska_SegmentUID = 0x73A4 // Level 2
-	Matroska_SegmentFilename = 0x7384 // Level 2
-	Matroska_PrevUID = 0x3CB923 // Level 2
-	Matroska_PrevFilename = 0x3C83AB // Level 2
-	Matroska_NextUID		= 0x3EB923
-	Matroska_NextFilename	= 0x3E83BB
-	Matroska_SegmentFamily	= 0x4444
-	Matroska_ChapterTranslate	= 0x6924
-	Matroska_ChapterTranslateEditionUID	= 0x69FC
-	Matroska_ChapterTranslateCodec	= 0x69BF
-	Matroska_ChapterTranslateID	= 0x69A5
-	Matroska_TimestampScale	= 0x2AD7B1
-	Matroska_Duration	= 0x4489
-	Matroska_DateUTC		= 0x4461
-	Matroska_Title	= 0x7BA9
-	Matroska_MuxingApp	= 0x4D80
-	Matroska_WritingApp	= 0x5741
+	Matroska_Info                       = 0x1549A966 // Level 1
+	Matroska_SegmentUID                 = 0x73A4     // Level 2
+	Matroska_SegmentFilename            = 0x7384     // Level 2
+	Matroska_PrevUID                    = 0x3CB923   // Level 2
+	Matroska_PrevFilename               = 0x3C83AB   // Level 2
+	Matroska_NextUID                    = 0x3EB923
+	Matroska_NextFilename               = 0x3E83BB
+	Matroska_SegmentFamily              = 0x4444
+	Matroska_ChapterTranslate           = 0x6924
+	Matroska_ChapterTranslateEditionUID = 0x69FC
+	Matroska_ChapterTranslateCodec      = 0x69BF
+	Matroska_ChapterTranslateID         = 0x69A5
+	Matroska_TimestampScale             = 0x2AD7B1
+	Matroska_Duration                   = 0x4489
+	Matroska_DateUTC                    = 0x4461
+	Matroska_Title                      = 0x7BA9
+	Matroska_MuxingApp                  = 0x4D80
+	Matroska_WritingApp                 = 0x5741
 
 	// Cluster
-	Matroska_Cluster		= 0x1F43B675
-	Matroska_Timestamp	= 0xE7
-	Matroska_SilentTracks	= 0x5854
-	Matroska_SilentTrackNumber	= 0x58D7
-	Matroska_Position	= 0xA7
-	Matroska_PrevSize	= 0xAB
-	Matroska_SimpleBlock		= 0xA3
-	Matroska_BlockGroup	= 0xA0
-	Matroska_Block	= 0xA1
-	Matroska_BlockVirtual	= 0xA2
-	Matroska_BlockAdditions	= 0x75A1
-	Matroska_BlockMore	= 0xA6
-	Matroska_BlockAddID	= 0xEE
-	Matroska_BlockAdditional		= 0xA5
-	Matroska_BlockDuration	= 0x9B
-	Matroska_ReferencePriority	= 0xFA
-	Matroska_ReferenceBlock	= 0xFB
-	Matroska_ReferenceVirtual	= 0xFD
-	Matroska_CodecState	= 0xA4
-	Matroska_DiscardPadding	= 0x75A2
-	Matroska_Slices	= 0x8E
-	Matroska_TimeSlice	= 0xE8
-	Matroska_LaceNumber	= 0xCC
-	Matroska_FrameNumber		= 0xCD
-	Matroska_BlockAdditionID		= 0xCB
-	Matroska_Delay	= 0xCE
-	Matroska_SliceDuration	= 0xCF
-	Matroska_ReferenceFrame	= 0xC8
-	Matroska_ReferenceOffset		= 0xC9
-	Matroska_ReferenceTimestamp	= 0xCA
-	Matroska_EncryptedBlock	= 0xAF
+	Matroska_Cluster            = 0x1F43B675
+	Matroska_Timestamp          = 0xE7
+	Matroska_SilentTracks       = 0x5854
+	Matroska_SilentTrackNumber  = 0x58D7
+	Matroska_Position           = 0xA7
+	Matroska_PrevSize           = 0xAB
+	Matroska_SimpleBlock        = 0xA3
+	Matroska_BlockGroup         = 0xA0
+	Matroska_Block              = 0xA1
+	Matroska_BlockVirtual       = 0xA2
+	Matroska_BlockAdditions     = 0x75A1
+	Matroska_BlockMore          = 0xA6
+	Matroska_BlockAddID         = 0xEE
+	Matroska_BlockAdditional    = 0xA5
+	Matroska_BlockDuration      = 0x9B
+	Matroska_ReferencePriority  = 0xFA
+	Matroska_ReferenceBlock     = 0xFB
+	Matroska_ReferenceVirtual   = 0xFD
+	Matroska_CodecState         = 0xA4
+	Matroska_DiscardPadding     = 0x75A2
+	Matroska_Slices             = 0x8E
+	Matroska_TimeSlice          = 0xE8
+	Matroska_LaceNumber         = 0xCC
+	Matroska_FrameNumber        = 0xCD
+	Matroska_BlockAdditionID    = 0xCB
+	Matroska_Delay              = 0xCE
+	Matroska_SliceDuration      = 0xCF
+	Matroska_ReferenceFrame     = 0xC8
+	Matroska_ReferenceOffset    = 0xC9
+	Matroska_ReferenceTimestamp = 0xCA
+	Matroska_EncryptedBlock     = 0xAF
 
 	// Track
-	Matroska_Tracks	= 0x1654AE6B
-	Matroska_TrackEntry	= 0xAE
-	Matroska_TrackNumber		= 0xD7
-	Matroska_TrackUID	= 0x73C5
-	Matroska_TrackType	= 0x83
-	Matroska_FlagEnabled		= 0xB9
-	Matroska_FlagDefault		= 0x88
-	Matroska_FlagForced	= 0x55AA
-	Matroska_FlagLacing	= 0x9C
-	Matroska_MinCache	= 0x6DE7
-	Matroska_MaxCache	= 0x6DF8
-	Matroska_DefaultDuration		= 0x23E383
-	Matroska_DefaultDecodedFieldDuration		= 0x234E7A
-	Matroska_TrackTimestampScale		= 0x23314F
-	Matroska_TrackOffset		= 0x537F
-	Matroska_MaxBlockAdditionID	= 0x55EE
-	Matroska_Name	= 0x536E
-	Matroska_Language	= 0x22B59C
-	Matroska_LanguageIETF	= 0x22B59D
-	Matroska_CodecID		= 0x86
-	Matroska_CodecPrivate	= 0x63A2
-	Matroska_CodecName	= 0x258688
-	Matroska_AttachmentLink	= 0x7446
-	Matroska_CodecSettings	= 0x3A9697
-	Matroska_CodecInfoURL	= 0x3B4040
-	Matroska_CodecDownloadURL	= 0x26B240
-	Matroska_CodecDecodeAll	= 0xAA
-	Matroska_TrackOverlay	= 0x6FAB
-	Matroska_CodecDelay	= 0x56AA
-	Matroska_SeekPreRoll		= 0x56BB
-	Matroska_TrackTranslate	= 0x6624
-	Matroska_TrackTranslateEditionUID	= 0x66FC
-	Matroska_TrackTranslateCodec		= 0x66BF
-	Matroska_TrackTranslateTrackID	= 0x66A5
-	Matroska_Video	= 0xE0
-	Matroska_FlagInterlaced	= 0x9A
-	Matroska_FieldOrder	= 0x9D
-	Matroska_StereoMode	= 0x53B8
-	Matroska_AlphaMode	= 0x53C0
-	Matroska_OldStereoMode	= 0x53B9
-	Matroska_PixelWidth	= 0xB0
-	Matroska_PixelHeight		= 0xBA
-	Matroska_PixelCropBottom		= 0x54AA
-	Matroska_PixelCropTop	= 0x54BB
-	Matroska_PixelCropLeft	= 0x54CC
-	Matroska_PixelCropRight	= 0x54DD
-	Matroska_DisplayWidth	= 0x54B0
-	Matroska_DisplayHeight	= 0x54BA
-	Matroska_DisplayUnit		= 0x54B2
-	Matroska_AspectRatioType		= 0x54B3
-	Matroska_ColourSpace		= 0x2EB524
-	Matroska_GammaValue	= 0x2FB523
-	Matroska_FrameRate	= 0x2383E3
-	Matroska_Colour	= 0x55B0
-	Matroska_MatrixCoefficients	= 0x55B1
-	Matroska_BitsPerChannel	= 0x55B2
-	Matroska_ChromaSubsamplingHorz	= 0x55B3
-	Matroska_ChromaSubsamplingVert	= 0x55B4
-	Matroska_CbSubsamplingHorz	= 0x55B5
-	Matroska_CbSubsamplingVert	= 0x55B6
-	Matroska_ChromaSitingHorz	= 0x55B7
-	Matroska_ChromaSitingVert	= 0x55B8
-	Matroska_Range	= 0x55B9
-	Matroska_TransferCharacteristics		= 0x55BA
-	Matroska_Primaries	= 0x55BB
-	Matroska_MaxCLL	= 0x55BC
-	Matroska_MaxFALL		= 0x55BD
-	Matroska_MasteringMetadata	= 0x55D0
-	Matroska_PrimaryRChromaticityX	= 0x55D1
-	Matroska_PrimaryRChromaticityY	= 0x55D2
-	Matroska_PrimaryGChromaticityX	= 0x55D3
-	Matroska_PrimaryGChromaticityY	= 0x55D4
-	Matroska_PrimaryBChromaticityX	= 0x55D5
-	Matroska_PrimaryBChromaticityY	= 0x55D6
-	Matroska_WhitePointChromaticityX		= 0x55D7
-	Matroska_WhitePointChromaticityY		= 0x55D8
-	Matroska_LuminanceMax	= 0x55D9
-	Matroska_LuminanceMin	= 0x55DA
-	Matroska_Projection	= 0x7670
-	Matroska_ProjectionType	= 0x7671
-	Matroska_ProjectionPrivate	= 0x7672
-	Matroska_ProjectionPoseYaw	= 0x7673
-	Matroska_ProjectionPosePitch		= 0x7674
-	Matroska_ProjectionPoseRoll	= 0x7675
-	Matroska_Audio	= 0xE1
-	Matroska_SamplingFrequency	= 0xB5
-	Matroska_OutputSamplingFrequency		= 0x78B5
-	Matroska_Channels	= 0x9F
-	Matroska_ChannelPositions	= 0x7D7B
-	Matroska_BitDepth	= 0x6264
-	Matroska_TrackOperation	= 0xE2
-	Matroska_TrackCombinePlanes	= 0xE3
-	Matroska_TrackPlane	= 0xE4
-	Matroska_TrackPlaneUID	= 0xE5
-	Matroska_TrackPlaneType	= 0xE6
-	Matroska_TrackJoinBlocks		= 0xE9
-	Matroska_TrackJoinUID	= 0xED
-	Matroska_TrickTrackUID	= 0xC0
-	Matroska_TrickTrackSegmentUID	= 0xC1
-	Matroska_TrickTrackFlag	= 0xC6
-	Matroska_TrickMasterTrackUID		= 0xC7
-	Matroska_TrickMasterTrackSegmentUID	= 0xC4
-	Matroska_ContentEncodings	= 0x6D80
-	Matroska_ContentEncoding		= 0x6240
-	Matroska_ContentEncodingOrder	= 0x5031
-	Matroska_ContentEncodingScope	= 0x5032
-	Matroska_ContentEncodingType		= 0x5033
-	Matroska_ContentCompression	= 0x5034
-	Matroska_ContentCompAlgo		= 0x4254
-	Matroska_ContentCompSettings		= 0x4255
-	Matroska_ContentEncryption	= 0x5035
-	Matroska_ContentEncAlgo	= 0x47E1
-	Matroska_ContentEncKeyID		= 0x47E2
-	Matroska_ContentEncAESSettings	= 0x47E7
-	Matroska_AESSettingsCipherMode	= 0x47E8
-	Matroska_ContentSignature	= 0x47E3
-	Matroska_ContentSigKeyID		= 0x47E4
-	Matroska_ContentSigAlgo	= 0x47E5
-	Matroska_ContentSigHashAlgo	= 0x47E6
+	Matroska_Tracks                      = 0x1654AE6B
+	Matroska_TrackEntry                  = 0xAE
+	Matroska_TrackNumber                 = 0xD7
+	Matroska_TrackUID                    = 0x73C5
+	Matroska_TrackType                   = 0x83
+	Matroska_FlagEnabled                 = 0xB9
+	Matroska_FlagDefault                 = 0x88
+	Matroska_FlagForced                  = 0x55AA
+	Matroska_FlagLacing                  = 0x9C
+	Matroska_MinCache                    = 0x6DE7
+	Matroska_MaxCache                    = 0x6DF8
+	Matroska_DefaultDuration             = 0x23E383
+	Matroska_DefaultDecodedFieldDuration = 0x234E7A
+	Matroska_TrackTimestampScale         = 0x23314F
+	Matroska_TrackOffset                 = 0x537F
+	Matroska_MaxBlockAdditionID          = 0x55EE
+	Matroska_Name                        = 0x536E
+	Matroska_Language                    = 0x22B59C
+	Matroska_LanguageIETF                = 0x22B59D
+	Matroska_CodecID                     = 0x86
+	Matroska_CodecPrivate                = 0x63A2
+	Matroska_CodecName                   = 0x258688
+	Matroska_AttachmentLink              = 0x7446
+	Matroska_CodecSettings               = 0x3A9697
+	Matroska_CodecInfoURL                = 0x3B4040
+	Matroska_CodecDownloadURL            = 0x26B240
+	Matroska_CodecDecodeAll              = 0xAA
+	Matroska_TrackOverlay                = 0x6FAB
+	Matroska_CodecDelay                  = 0x56AA
+	Matroska_SeekPreRoll                 = 0x56BB
+	Matroska_TrackTranslate              = 0x6624
+	Matroska_TrackTranslateEditionUID    = 0x66FC
+	Matroska_TrackTranslateCodec         = 0x66BF
+	Matroska_TrackTranslateTrackID       = 0x66A5
+	Matroska_Video                       = 0xE0
+	Matroska_FlagInterlaced              = 0x9A
+	Matroska_FieldOrder                  = 0x9D
+	Matroska_StereoMode                  = 0x53B8
+	Matroska_AlphaMode                   = 0x53C0
+	Matroska_OldStereoMode               = 0x53B9
+	Matroska_PixelWidth                  = 0xB0
+	Matroska_PixelHeight                 = 0xBA
+	Matroska_PixelCropBottom             = 0x54AA
+	Matroska_PixelCropTop                = 0x54BB
+	Matroska_PixelCropLeft               = 0x54CC
+	Matroska_PixelCropRight              = 0x54DD
+	Matroska_DisplayWidth                = 0x54B0
+	Matroska_DisplayHeight               = 0x54BA
+	Matroska_DisplayUnit                 = 0x54B2
+	Matroska_AspectRatioType             = 0x54B3
+	Matroska_ColourSpace                 = 0x2EB524
+	Matroska_GammaValue                  = 0x2FB523
+	Matroska_FrameRate                   = 0x2383E3
+	Matroska_Colour                      = 0x55B0
+	Matroska_MatrixCoefficients          = 0x55B1
+	Matroska_BitsPerChannel              = 0x55B2
+	Matroska_ChromaSubsamplingHorz       = 0x55B3
+	Matroska_ChromaSubsamplingVert       = 0x55B4
+	Matroska_CbSubsamplingHorz           = 0x55B5
+	Matroska_CbSubsamplingVert           = 0x55B6
+	Matroska_ChromaSitingHorz            = 0x55B7
+	Matroska_ChromaSitingVert            = 0x55B8
+	Matroska_Range                       = 0x55B9
+	Matroska_TransferCharacteristics     = 0x55BA
+	Matroska_Primaries                   = 0x55BB
+	Matroska_MaxCLL                      = 0x55BC
+	Matroska_MaxFALL                     = 0x55BD
+	Matroska_MasteringMetadata           = 0x55D0
+	Matroska_PrimaryRChromaticityX       = 0x55D1
+	Matroska_PrimaryRChromaticityY       = 0x55D2
+	Matroska_PrimaryGChromaticityX       = 0x55D3
+	Matroska_PrimaryGChromaticityY       = 0x55D4
+	Matroska_PrimaryBChromaticityX       = 0x55D5
+	Matroska_PrimaryBChromaticityY       = 0x55D6
+	Matroska_WhitePointChromaticityX     = 0x55D7
+	Matroska_WhitePointChromaticityY     = 0x55D8
+	Matroska_LuminanceMax                = 0x55D9
+	Matroska_LuminanceMin                = 0x55DA
+	Matroska_Projection                  = 0x7670
+	Matroska_ProjectionType              = 0x7671
+	Matroska_ProjectionPrivate           = 0x7672
+	Matroska_ProjectionPoseYaw           = 0x7673
+	Matroska_ProjectionPosePitch         = 0x7674
+	Matroska_ProjectionPoseRoll          = 0x7675
+	Matroska_Audio                       = 0xE1
+	Matroska_SamplingFrequency           = 0xB5
+	Matroska_OutputSamplingFrequency     = 0x78B5
+	Matroska_Channels                    = 0x9F
+	Matroska_ChannelPositions            = 0x7D7B
+	Matroska_BitDepth                    = 0x6264
+	Matroska_TrackOperation              = 0xE2
+	Matroska_TrackCombinePlanes          = 0xE3
+	Matroska_TrackPlane                  = 0xE4
+	Matroska_TrackPlaneUID               = 0xE5
+	Matroska_TrackPlaneType              = 0xE6
+	Matroska_TrackJoinBlocks             = 0xE9
+	Matroska_TrackJoinUID                = 0xED
+	Matroska_TrickTrackUID               = 0xC0
+	Matroska_TrickTrackSegmentUID        = 0xC1
+	Matroska_TrickTrackFlag              = 0xC6
+	Matroska_TrickMasterTrackUID         = 0xC7
+	Matroska_TrickMasterTrackSegmentUID  = 0xC4
+	Matroska_ContentEncodings            = 0x6D80
+	Matroska_ContentEncoding             = 0x6240
+	Matroska_ContentEncodingOrder        = 0x5031
+	Matroska_ContentEncodingScope        = 0x5032
+	Matroska_ContentEncodingType         = 0x5033
+	Matroska_ContentCompression          = 0x5034
+	Matroska_ContentCompAlgo             = 0x4254
+	Matroska_ContentCompSettings         = 0x4255
+	Matroska_ContentEncryption           = 0x5035
+	Matroska_ContentEncAlgo              = 0x47E1
+	Matroska_ContentEncKeyID             = 0x47E2
+	Matroska_ContentEncAESSettings       = 0x47E7
+	Matroska_AESSettingsCipherMode       = 0x47E8
+	Matroska_ContentSignature            = 0x47E3
+	Matroska_ContentSigKeyID             = 0x47E4
+	Matroska_ContentSigAlgo              = 0x47E5
+	Matroska_ContentSigHashAlgo          = 0x47E6
 
 	// Cueing Data
-	Matroska_Cues	= 0x1C53BB6B
-	Matroska_CuePoint	= 0xBB
-	Matroska_CueTime		= 0xB3
-	Matroska_CueTrackPositions	= 0xB7
-	Matroska_CueTrack	= 0xF7
-	Matroska_CueClusterPosition	= 0xF1
-	Matroska_CueRelativePosition		= 0xF0
-	Matroska_CueDuration		= 0xB2
-	Matroska_CueBlockNumber	= 0x5378
-	Matroska_CueCodecState	= 0xEA
-	Matroska_CueReference	= 0xDB
-	Matroska_CueRefTime	= 0x96
-	Matroska_CueRefCluster	= 0x97
-	Matroska_CueRefNumber	= 0x535F
-	Matroska_CueRefCodecState	= 0xEB
-	Matroska_Attachments		= 0x1941A469
-	Matroska_AttachedFile	= 0x61A7
-	Matroska_FileDescription		= 0x467E
-	Matroska_FileName	= 0x466E
-	Matroska_FileMimeType	= 0x4660
-	Matroska_FileData	= 0x465C
-	Matroska_FileUID		= 0x46AE
-	Matroska_FileReferral	= 0x4675
-	Matroska_FileUsedStartTime	= 0x4661
-	Matroska_FileUsedEndTime		= 0x4662
+	Matroska_Cues                = 0x1C53BB6B
+	Matroska_CuePoint            = 0xBB
+	Matroska_CueTime             = 0xB3
+	Matroska_CueTrackPositions   = 0xB7
+	Matroska_CueTrack            = 0xF7
+	Matroska_CueClusterPosition  = 0xF1
+	Matroska_CueRelativePosition = 0xF0
+	Matroska_CueDuration         = 0xB2
+	Matroska_CueBlockNumber      = 0x5378
+	Matroska_CueCodecState       = 0xEA
+	Matroska_CueReference        = 0xDB
+	Matroska_CueRefTime          = 0x96
+	Matroska_CueRefCluster       = 0x97
+	Matroska_CueRefNumber        = 0x535F
+	Matroska_CueRefCodecState    = 0xEB
+	Matroska_Attachments         = 0x1941A469
+	Matroska_AttachedFile        = 0x61A7
+	Matroska_FileDescription     = 0x467E
+	Matroska_FileName            = 0x466E
+	Matroska_FileMimeType        = 0x4660
+	Matroska_FileData            = 0x465C
+	Matroska_FileUID             = 0x46AE
+	Matroska_FileReferral        = 0x4675
+	Matroska_FileUsedStartTime   = 0x4661
+	Matroska_FileUsedEndTime     = 0x4662
 
 	// Chapters
-	Matroska_Chapters	= 0x1043A770
-	Matroska_EditionEntry	= 0x45B9
-	Matroska_EditionUID	= 0x45BC
-	Matroska_EditionFlagHidden	= 0x45BD
-	Matroska_EditionFlagDefault	= 0x45DB
-	Matroska_EditionFlagOrdered	= 0x45DD
-	Matroska_ChapterAtom		= 0xB6
-	Matroska_ChapterUID	= 0x73C4
-	Matroska_ChapterStringUID	= 0x5654
-	Matroska_ChapterTimeStart	= 0x91
-	Matroska_ChapterTimeEnd	= 0x92
-	Matroska_ChapterFlagHidden	= 0x98
-	Matroska_ChapterFlagEnabled	= 0x4598
-	Matroska_ChapterSegmentUID	= 0x6E67
-	Matroska_ChapterSegmentEditionUID	= 0x6EBC
-	Matroska_ChapterPhysicalEquiv	= 0x63C3
-	Matroska_ChapterTrack	= 0x8F
-	Matroska_ChapterTrackNumber	= 0x89
-	Matroska_ChapterDisplay	= 0x80
-	Matroska_ChapString	= 0x85
-	Matroska_ChapLanguage	= 0x437C
-	Matroska_ChapLanguageIETF	= 0x437D
-	Matroska_ChapCountry		= 0x437E
-	Matroska_ChapProcess		= 0x6944
-	Matroska_ChapProcessCodecID	= 0x6955
-	Matroska_ChapProcessPrivate	= 0x450D
-	Matroska_ChapProcessCommand	= 0x6911
-	Matroska_ChapProcessTime		= 0x6922
-	Matroska_ChapProcessData		= 0x6933
-	Matroska_Tags	= 0x1254C367
-	Matroska_Tag		= 0x7373
-	Matroska_Targets		= 0x63C0
-	Matroska_TargetTypeValue		= 0x68CA
-	Matroska_TargetType	= 0x63CA
-	Matroska_TagTrackUID		= 0x63C5
-	Matroska_TagEditionUID	= 0x63C9
-	Matroska_TagChapterUID	= 0x63C4
-	Matroska_TagAttachmentUID	= 0x63C6
-	Matroska_SimpleTag	= 0x67C8
-	Matroska_TagName		= 0x45A3
-	Matroska_TagLanguage		= 0x447A
-	Matroska_TagLanguageIETF		= 0x447B
-	Matroska_TagDefault	= 0x4484
-	Matroska_TagString	= 0x4487
-	Matroska_TagBinary	= 0x4485
-)// }}}
+	Matroska_Chapters                 = 0x1043A770
+	Matroska_EditionEntry             = 0x45B9
+	Matroska_EditionUID               = 0x45BC
+	Matroska_EditionFlagHidden        = 0x45BD
+	Matroska_EditionFlagDefault       = 0x45DB
+	Matroska_EditionFlagOrdered       = 0x45DD
+	Matroska_ChapterAtom              = 0xB6
+	Matroska_ChapterUID               = 0x73C4
+	Matroska_ChapterStringUID         = 0x5654
+	Matroska_ChapterTimeStart         = 0x91
+	Matroska_ChapterTimeEnd           = 0x92
+	Matroska_ChapterFlagHidden        = 0x98
+	Matroska_ChapterFlagEnabled       = 0x4598
+	Matroska_ChapterSegmentUID        = 0x6E67
+	Matroska_ChapterSegmentEditionUID = 0x6EBC
+	Matroska_ChapterPhysicalEquiv     = 0x63C3
+	Matroska_ChapterTrack             = 0x8F
+	Matroska_ChapterTrackNumber       = 0x89
+	Matroska_ChapterDisplay           = 0x80
+	Matroska_ChapString               = 0x85
+	Matroska_ChapLanguage             = 0x437C
+	Matroska_ChapLanguageIETF         = 0x437D
+	Matroska_ChapCountry              = 0x437E
+	Matroska_ChapProcess              = 0x6944
+	Matroska_ChapProcessCodecID       = 0x6955
+	Matroska_ChapProcessPrivate       = 0x450D
+	Matroska_ChapProcessCommand       = 0x6911
+	Matroska_ChapProcessTime          = 0x6922
+	Matroska_ChapProcessData          = 0x6933
+	Matroska_Tags                     = 0x1254C367
+	Matroska_Tag                      = 0x7373
+	Matroska_Targets                  = 0x63C0
+	Matroska_TargetTypeValue          = 0x68CA
+	Matroska_TargetType               = 0x63CA
+	Matroska_TagTrackUID              = 0x63C5
+	Matroska_TagEditionUID            = 0x63C9
+	Matroska_TagChapterUID            = 0x63C4
+	Matroska_TagAttachmentUID         = 0x63C6
+	Matroska_SimpleTag                = 0x67C8
+	Matroska_TagName                  = 0x45A3
+	Matroska_TagLanguage              = 0x447A
+	Matroska_TagLanguageIETF          = 0x447B
+	Matroska_TagDefault               = 0x4484
+	Matroska_TagString                = 0x4487
+	Matroska_TagBinary                = 0x4485
+) // }}}
 
 //TODO from here on it's just structs for Matroska Elements (need to remove the unused ones)
 

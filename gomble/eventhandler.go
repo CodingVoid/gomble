@@ -14,10 +14,11 @@ import (
 var eventpuffer chan event
 
 var Listener listener
+
 type listener struct {
 	OnPrivateMessageReceived func(e PrivateMessageReceivedEvent)
 	OnChannelMessageReceived func(e ChannelMessageReceivedEvent)
-	OnTrackEnded func(e TrackEndedEvent)
+	OnTrackEnded             func(e TrackEndedEvent)
 }
 
 // conn is our tcp connection to the server. It is used by packagereader.go to read packages from mumble-server and by packagewriter to write packages to the mumble-server.
@@ -30,7 +31,6 @@ var audioConn *net.UDPConn
 // Adress and port of mumble-server in syntax address:port
 var addr string
 
-
 // Initializes some settings for gomble and returns an Eventhandler which can be used to add event-listeners
 // loglevel the loglevel to use e.g. logger.DEBUG, logger.INFO, logger.WARN, logger.ERROR, logger.FATAL
 // addr the address of the mumble-server written like "192.168.178.150:64738"
@@ -41,7 +41,7 @@ func Init(loglevel logger.Loglevel, address string) {
 	audiocryptoconfig.tcpTunnelMode = true // our audio goes through the tcp tunnel, until we successfully got a UDP Ping answer from the mumble-server
 }
 
-// Initializes the Connection 
+// Initializes the Connection
 func Begin() {
 	connl, err := tls.Dial("tcp", addr, &tlsconfig)
 	if err != nil {
@@ -52,13 +52,13 @@ func Begin() {
 
 	// Initialize mumble connection
 
-	versionPacket := mumbleproto.Version {
+	versionPacket := mumbleproto.Version{
 		Version:   proto.Uint32(66304),
 		Release:   proto.String("gomble"),
 		Os:        proto.String("linux"),
 		OsVersion: proto.String("amd64"),
 	}
-	authPacket := mumbleproto.Authenticate {
+	authPacket := mumbleproto.Authenticate{
 		Username: proto.String("gomble-bot"),
 		Password: proto.String(""),
 		Opus:     proto.Bool(true),

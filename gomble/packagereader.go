@@ -2,10 +2,10 @@ package gomble
 
 import (
 	"encoding/binary"
-	"io"
 	"errors"
-	"strconv"
 	"fmt"
+	"io"
+	"strconv"
 
 	"github.com/golang/protobuf/proto"
 
@@ -13,7 +13,7 @@ import (
 	"github.com/CodingVoid/gomble/mumbleproto"
 )
 
-func readRoutine() {// {{{
+func readRoutine() { // {{{
 	for {
 		var data [2048]byte
 		pckType, pcksize, err := receivePacket(data[:])
@@ -26,9 +26,9 @@ func readRoutine() {// {{{
 		handlePacket(pckType, data[:pcksize])
 	}
 
-}// }}}
+} // }}}
 
-func receivePacket(buffer []byte) (uint16, uint32, error) {// {{{
+func receivePacket(buffer []byte) (uint16, uint32, error) { // {{{
 	var header [6]byte
 	buffersize := len(buffer)
 
@@ -36,11 +36,11 @@ func receivePacket(buffer []byte) (uint16, uint32, error) {// {{{
 		return 0, 0, errors.New("receivePacket header could not be received\n")
 	}
 	pckType := binary.BigEndian.Uint16(header[:2])
-	pckLen  := binary.BigEndian.Uint32(header[2:])
+	pckLen := binary.BigEndian.Uint32(header[2:])
 
 	//logger.Debugf("Read Package Header: pckType: %d pckLen: %d\n", pckType, pckLen)
 
-	if (pckLen > uint32(buffersize)) {
+	if pckLen > uint32(buffersize) {
 		return 0, 0, errors.New("receivePacket buffer was to small, buffersize: " + strconv.Itoa(buffersize) + " pckLen: " + strconv.Itoa(int(pckLen)))
 	}
 
@@ -49,15 +49,15 @@ func receivePacket(buffer []byte) (uint16, uint32, error) {// {{{
 	}
 
 	return pckType, pckLen, nil
-}// }}}
+} // }}}
 
-func handlePacket(pckType uint16, data []byte) {// {{{
-	switch(pckType) {
-		// Version
+func handlePacket(pckType uint16, data []byte) { // {{{
+	switch pckType {
+	// Version
 	case 0:
 		var pck mumbleproto.Version
 		proto.Unmarshal(data, &pck)
-		break;
+		break
 		// Voice Packet, ignore
 	case 1:
 		break
@@ -67,22 +67,22 @@ func handlePacket(pckType uint16, data []byte) {// {{{
 		proto.Unmarshal(data, &pck)
 		// set config for sending audio data over udp/ocb/aes
 		audiocryptoconfig.cryptState.SetKey("OCB2-AES128", pck.GetKey(), pck.GetClientNonce(), pck.GetServerNonce())
-		break;
+		break
 		// Channel State
 	case 7:
 		var pck mumbleproto.ChannelState
 		proto.Unmarshal(data, &pck)
-		break;
+		break
 		// User State
 	case 9:
 		var pck mumbleproto.UserState
 		proto.Unmarshal(data, &pck)
-		break;
+		break
 		// Server sync
 	case 5:
 		var pck mumbleproto.ServerSync
 		proto.Unmarshal(data, &pck)
-		break;
+		break
 		// CodecVersion
 	case 21:
 		var pck mumbleproto.CodecVersion
@@ -104,23 +104,23 @@ func handlePacket(pckType uint16, data []byte) {// {{{
 		var pck mumbleproto.TextMessage
 		proto.Unmarshal(data, &pck)
 		if pck.GetChannelId() == nil {
-			mre := PrivateMessageReceivedEvent {
-				Actor: pck.GetActor(),
+			mre := PrivateMessageReceivedEvent{
+				Actor:   pck.GetActor(),
 				Message: pck.GetMessage(),
 			}
 			eventpuffer <- mre
 		} else {
-			mre := ChannelMessageReceivedEvent {
-				Actor: pck.GetActor(),
+			mre := ChannelMessageReceivedEvent{
+				Actor:   pck.GetActor(),
 				Message: pck.GetMessage(),
 				Channel: pck.GetChannelId()[0],
 			}
 			eventpuffer <- mre
 		}
 		/*
-		if (strings.Contains(pck.GetMessage(), "test")) {
-			sendMessage("send back")
-		}
+			if (strings.Contains(pck.GetMessage(), "test")) {
+				sendMessage("send back")
+			}
 		*/
 		// UserRemove
 	case 8:
@@ -128,15 +128,15 @@ func handlePacket(pckType uint16, data []byte) {// {{{
 		proto.Unmarshal(data, &pck)
 	default:
 		logger.Fatalf("unknown msg type: %d\n", pckType)
-		break;
+		break
 	}
-}// }}}
+} // }}}
 
 // for heavy debugging
-func printReceivedPackage(pckType uint16, data []byte) {// {{{
+func printReceivedPackage(pckType uint16, data []byte) { // {{{
 	var out string
-	switch(pckType) {
-		// Version
+	switch pckType {
+	// Version
 	case 0:
 		out += "Received packageType: Version (0)\n"
 		var pck mumbleproto.Version
@@ -145,7 +145,7 @@ func printReceivedPackage(pckType uint16, data []byte) {// {{{
 		out += fmt.Sprintf("OS: %s\n", pck.GetOs())
 		out += fmt.Sprintf("Release: %s\n", pck.GetRelease())
 		out += fmt.Sprintf("OSVersion: %s\n", pck.GetOsVersion())
-		break;
+		break
 		// Voice Packet, ignore
 	case 1:
 		//out += "Received packageType: Voice (1)\n"
@@ -158,7 +158,7 @@ func printReceivedPackage(pckType uint16, data []byte) {// {{{
 		out += formatByteArray("Key: ", pck.GetKey())
 		out += formatByteArray("ClientNonce: ", pck.GetClientNonce())
 		out += formatByteArray("ServerNonce: ", pck.GetServerNonce())
-		break;
+		break
 		// Channel State
 	case 7:
 		out += "Received packageType: ChannelState (7)\n"
@@ -177,7 +177,7 @@ func printReceivedPackage(pckType uint16, data []byte) {// {{{
 		out += formatUint32Array("Links: ", pck.GetLinks())
 		out += formatUint32Array("LinksAdd: ", pck.GetLinksAdd())
 		out += formatUint32Array("LinksRemove: ", pck.GetLinksRemove())
-		break;
+		break
 		// User State
 	case 9:
 		out += "Received packageType: UserState (9)\n"
@@ -203,7 +203,7 @@ func printReceivedPackage(pckType uint16, data []byte) {// {{{
 		out += formatByteArray("CommentHash: ", pck.GetCommentHash())
 		out += formatByteArray("PluginContext: ", pck.GetPluginContext())
 		out += formatStringArray("TemporaryAccessTokens: ", pck.GetTemporaryAccessTokens())
-		break;
+		break
 		// Server sync
 	case 5:
 		out += "Received packageType: ServerSync (5)\n"
@@ -213,7 +213,7 @@ func printReceivedPackage(pckType uint16, data []byte) {// {{{
 		out += fmt.Sprintf("Session: %d\n", pck.GetSession())
 		out += fmt.Sprintf("Permissions: %d\n", pck.GetPermissions())
 		out += fmt.Sprintf("Welcome-Text: %s\n", pck.GetWelcomeText())
-		break;
+		break
 		// CodecVersion
 	case 21:
 		out += "Received packageType: CodecVersion (21)\n"
@@ -279,11 +279,10 @@ func printReceivedPackage(pckType uint16, data []byte) {// {{{
 		out += fmt.Sprintf("Reason: %s\n", pck.GetReason())
 	default:
 		logger.Fatalf("unknown msg type: %d\n", pckType)
-		break;
+		break
 	}
 	// don't print on voice packages. My eyes want to live...
 	if pckType != 1 {
 		logger.Debugf(out + "\n")
 	}
-}// }}}
-
+} // }}}

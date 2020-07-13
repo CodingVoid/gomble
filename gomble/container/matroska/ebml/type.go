@@ -25,6 +25,7 @@ type Unmarshaler interface {
 // func marshal(w *Writer, v reflect.Value, opt *EncodeOptions) error {
 // }
 var cnt int64 = 0
+
 func unmarshal(r *Reader, v reflect.Value, opt *DecodeOptions) error {
 	cnt++
 	switch v.Kind() {

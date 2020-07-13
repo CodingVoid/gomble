@@ -24,7 +24,7 @@ package gomble
 //
 //// return package data, package type, package target
 //func audioReadPackage() (error) {
-//	var typeTarget [1]byte 
+//	var typeTarget [1]byte
 //	_, err := audioConn.Read(typeTarget[:])
 //	if err != nil {
 //		logger.Fatal("Could not read UDP package 1: " + err.Error())

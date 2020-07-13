@@ -1,11 +1,11 @@
 package gomble
 
 import (
-	"math"
 	"encoding/binary"
+	"math"
 
-	"github.com/CodingVoid/gomble/logger"
 	"github.com/CodingVoid/gomble/cryptstate"
+	"github.com/CodingVoid/gomble/logger"
 )
 
 // constants for audiotypes of mumble
@@ -30,6 +30,7 @@ type audioCryptoConfig struct {
 var audiocryptoconfig audioCryptoConfig
 
 var sequenceNumber int64 = 0
+
 func sendAudioPacket(opusPayload []byte, opusPayloadlen uint16, last bool) {
 	var protoType uint16
 	protoType = 1 // in case of TCP Tunnel
@@ -49,19 +50,19 @@ func sendAudioPacket(opusPayload []byte, opusPayloadlen uint16, last bool) {
 
 	// opus encoded audio data
 	var terminateBit int64
-	if (last) {
+	if last {
 		terminateBit = 1
 	} else {
 		terminateBit = 0
 	}
 
-	opusHeader := terminateBit << 13 | int64(len(opusPayload))
+	opusHeader := terminateBit<<13 | int64(len(opusPayload))
 	opusHeaderVar := encodeVarint(opusHeader)
 
 	// tcp stack header
 	audioheadersize := 1 + len(audioSequenceNum) + len(opusHeaderVar)
 	pcksize := audioheadersize + len(opusPayload)
-	var header []byte = make([]byte, 6 + audioheadersize)
+	var header []byte = make([]byte, 6+audioheadersize)
 	binary.BigEndian.PutUint16(header[:], protoType)
 	binary.BigEndian.PutUint32(header[2:6], uint32(pcksize)) // len(opusPayload) + len(audioHeader) + len(opusHeaderVar) + len(sequencenum)
 	header[6] = audioHeader

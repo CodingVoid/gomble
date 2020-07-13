@@ -1,11 +1,11 @@
 package gomble
 
-// if anything is written to the TCP-Connection with the mumble-server, it happens here. 
+// if anything is written to the TCP-Connection with the mumble-server, it happens here.
 
 import (
-	"time"
 	"encoding/binary"
 	"net"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 
@@ -13,7 +13,7 @@ import (
 	"github.com/CodingVoid/gomble/mumbleproto"
 )
 
-func writeProto(msg proto.Message) error {// {{{
+func writeProto(msg proto.Message) error { // {{{
 	protoType := mumbleproto.MessageType(msg)
 
 	data, err := proto.Marshal(msg)
@@ -21,9 +21,9 @@ func writeProto(msg proto.Message) error {// {{{
 		return err
 	}
 	return sendPacket(protoType, data)
-}// }}}
+} // }}}
 
-func sendPacket(protoType uint16, data []byte) error {// {{{
+func sendPacket(protoType uint16, data []byte) error { // {{{
 	var header [6]byte
 	binary.BigEndian.PutUint16(header[:], protoType)
 	binary.BigEndian.PutUint32(header[2:], uint32(len(data)))
@@ -36,10 +36,10 @@ func sendPacket(protoType uint16, data []byte) error {// {{{
 		return err
 	}
 	return nil
-}// }}}
+} // }}}
 
 // pingRoutine sends ping packets (TCP and UDP) to the server at regular intervals. TCP because the Server needs to receive one every 30 seconds, otherwise we get kicked. And UDP to check if the UDP connection to the Server is still working. If not we send Audio Packages over TCP Tunnel.
-func pingRoutine() {// {{{
+func pingRoutine() { // {{{
 	tcpPing := time.NewTicker(time.Second * 20)
 	udpPing := time.NewTicker(time.Second * 4)
 	defer tcpPing.Stop()
@@ -60,8 +60,8 @@ func pingRoutine() {// {{{
 	for {
 
 		select {
-			//case <-end:
-			//	return
+		//case <-end:
+		//	return
 		case tTcp = <-tcpPing.C:
 			timestamp = uint64(tTcp.UnixNano())
 			//tcpPingAvg = math.Float32frombits(atomic.LoadUint32(&tcpPingAvg))
@@ -69,7 +69,7 @@ func pingRoutine() {// {{{
 			writeProto(&tcpPingPacket)
 			break
 		case tUdp = <-udpPing.C:
-			var header byte = 0x20 // ping header for audiopacket
+			var header byte = 0x20                // ping header for audiopacket
 			data := encodeVarint(tUdp.UnixNano()) // write timestamp as unix timestamp in nanoseconds
 
 			var all []byte
@@ -132,4 +132,4 @@ func pingRoutine() {// {{{
 			}
 		}
 	}
-}// }}}
+} // }}}

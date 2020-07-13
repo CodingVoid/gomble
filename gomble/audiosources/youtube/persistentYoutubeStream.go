@@ -22,8 +22,8 @@ type persistentYoutubeStream struct {
 }
 
 func NewPersistentYoutubeStream(contentUrl string, contentLength int) (*persistentYoutubeStream, error) {
-	stream := persistentYoutubeStream {
-		contentUrl: contentUrl,
+	stream := persistentYoutubeStream{
+		contentUrl:    contentUrl,
 		contentLength: contentLength,
 	}
 	err := stream.RequestNext()
@@ -35,7 +35,7 @@ func NewPersistentYoutubeStream(contentUrl string, contentLength int) (*persiste
 }
 
 // Read len(p) bytes (it does not guarantee that len(p) bytes are read). returns io.EOF on end of file
-func (s *persistentYoutubeStream) Read(p []byte) (int, error) {// {{{
+func (s *persistentYoutubeStream) Read(p []byte) (int, error) { // {{{
 	n, err := s.httpResp.Body.Read(p)
 	if err != nil {
 		// Check if error was end of file
@@ -60,18 +60,18 @@ func (s *persistentYoutubeStream) Read(p []byte) (int, error) {// {{{
 		return n, err
 	}
 	return n, nil
-}// }}}
+} // }}}
 
-func (s *persistentYoutubeStream) RequestNext() error {// {{{
+func (s *persistentYoutubeStream) RequestNext() error { // {{{
 	logger.Debugf("Requesting next Youtube media/audio data\n")
 	burl, err := url.Parse(s.contentUrl)
 	if err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		return fmt.Errorf("RequestNext(%s:%d): %w", file, line, err)
 	}
-	val := burl.Query() // get values of url
+	val := burl.Query()                                                  // get values of url
 	val.Set("range", fmt.Sprintf("%d-%d", s.aposition, s.contentLength)) // set range paramter for value
-	burl.RawQuery = val.Encode() // set values to url
+	burl.RawQuery = val.Encode()                                         // set values to url
 	resp, err := http.Get(burl.String())
 	if err != nil {
 		_, file, line, _ := runtime.Caller(0)
@@ -85,4 +85,4 @@ func (s *persistentYoutubeStream) RequestNext() error {// {{{
 	s.httpResp = resp
 	s.cposition = 0
 	return nil
-}// }}}
+} // }}}

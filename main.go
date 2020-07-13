@@ -1,18 +1,19 @@
 package main
 
 import (
-	"strings"
 	"regexp"
+	"strings"
 
 	"github.com/CodingVoid/gomble/gomble"
-	"github.com/CodingVoid/gomble/logger"
 	"github.com/CodingVoid/gomble/gomble/audiosources"
-	"github.com/CodingVoid/gomble/gomble/audiosources/youtube"
 	"github.com/CodingVoid/gomble/gomble/audiosources/oggopusfile"
+	"github.com/CodingVoid/gomble/gomble/audiosources/youtube"
+	"github.com/CodingVoid/gomble/logger"
 )
 
 // queue of tracks
 var queue []audiosources.Audiosource
+
 // current Channel the bot is in
 var currentChannel gomble.Channel
 
@@ -73,7 +74,6 @@ func OnChannelMessageReceived(e gomble.ChannelMessageReceivedEvent) {
 func OnTrackEnded(e gomble.TrackEndedEvent) {
 	startNextTrack()
 }
-
 
 func startNextTrack() {
 	if len(queue) > 0 {
