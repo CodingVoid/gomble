@@ -1,0 +1,27 @@
+@startuml
+participant main.go
+participant youtube.go
+participant audiohandler.go.Play
+participant audiohandler.go.audioroutine
+participant audiohandler.go.getNextOpusFrame
+participant opus.go
+
+main.go -> youtube.go : NewYoutubeVideo()
+main.go <- youtube.go : NewYoutubeVideo()
+main.go -> audiohandler.go.Play : Play(track)
+audiohandler.go.Play -> audiohandler.go.audioroutine : go audioroutine()
+audiohandler.go.audioroutine -> opus.go : NewOpusEncoder()
+audiohandler.go.audioroutine <- opus.go : NewOpusEncoder()
+	loop
+		audiohandler.go.audioroutine -> audiohandler.go.getNextOpusFrame : getNextOpusFrame(track, encoder)
+		audiohandler.go.getNextOpusFrame -> youtube.go : track.GetPCMFrame(duration)
+		audiohandler.go.getNextOpusFrame <- youtube.go : track.GetPCMFrame(duration)
+		audiohandler.go.getNextOpusFrame -> opus.go : encoder.Encode(pcm)
+		audiohandler.go.getNextOpusFrame <- opus.go : encoder:Encode(pcm)
+		audiohandler.go.audioroutine <- audiohandler.go.getNextOpusFrame : getNextOpusFrame(track, encoder)
+		audiohandler.go.audioroutine -> audiopackagewriter.go : sendAudioPacket(opusPayload)
+		audiohandler.go.audioroutine <- audiopackagewriter.go : sendAudioPacket(opusPayload)
+	end
+main.go <- audiohandler.go.Play : Play(track)
+
+@enduml
