@@ -1,6 +1,6 @@
-package audiosources
+package tracksources
 
-type Audiosource interface {
+type TrackSource interface {
 	// returns PCM Frame:
 	// samplerate: 48000
 	// channel: 1 (Mono)
