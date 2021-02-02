@@ -1,27 +1,27 @@
 @startuml
 participant main.go
 participant youtube.go
-participant audiohandler.go.Play
-participant audiohandler.go.audioroutine
-participant audiohandler.go.getNextOpusFrame
+participant track.go.Play
+participant track.go.audioroutine
+participant track.go.getNextOpusFrame
 participant opus.go
 
 main.go -> youtube.go : NewYoutubeVideo()
 main.go <- youtube.go : NewYoutubeVideo()
-main.go -> audiohandler.go.Play : Play(track)
-audiohandler.go.Play -> audiohandler.go.audioroutine : go audioroutine()
-audiohandler.go.audioroutine -> opus.go : NewOpusEncoder()
-audiohandler.go.audioroutine <- opus.go : NewOpusEncoder()
+main.go -> track.go.Play : Play(track)
+track.go.Play -> track.go.audioroutine : go audioroutine()
+track.go.audioroutine -> opus.go : NewOpusEncoder()
+track.go.audioroutine <- opus.go : NewOpusEncoder()
 	loop
-		audiohandler.go.audioroutine -> audiohandler.go.getNextOpusFrame : getNextOpusFrame(track, encoder)
-		audiohandler.go.getNextOpusFrame -> youtube.go : track.GetPCMFrame(duration)
-		audiohandler.go.getNextOpusFrame <- youtube.go : track.GetPCMFrame(duration)
-		audiohandler.go.getNextOpusFrame -> opus.go : encoder.Encode(pcm)
-		audiohandler.go.getNextOpusFrame <- opus.go : encoder:Encode(pcm)
-		audiohandler.go.audioroutine <- audiohandler.go.getNextOpusFrame : getNextOpusFrame(track, encoder)
-		audiohandler.go.audioroutine -> audiopackagewriter.go : sendAudioPacket(opusPayload)
-		audiohandler.go.audioroutine <- audiopackagewriter.go : sendAudioPacket(opusPayload)
+		track.go.audioroutine -> track.go.getNextOpusFrame : getNextOpusFrame(track, encoder)
+		track.go.getNextOpusFrame -> youtube.go : track.GetPCMFrame(duration)
+		track.go.getNextOpusFrame <- youtube.go : track.GetPCMFrame(duration)
+		track.go.getNextOpusFrame -> opus.go : encoder.Encode(pcm)
+		track.go.getNextOpusFrame <- opus.go : encoder:Encode(pcm)
+		track.go.audioroutine <- track.go.getNextOpusFrame : getNextOpusFrame(track, encoder)
+		track.go.audioroutine -> audiopackagewriter.go : sendAudioPacket(opusPayload)
+		track.go.audioroutine <- audiopackagewriter.go : sendAudioPacket(opusPayload)
 	end
-main.go <- audiohandler.go.Play : Play(track)
+main.go <- track.go.Play : Play(track)
 
 @enduml
