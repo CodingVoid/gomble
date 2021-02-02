@@ -19,25 +19,24 @@ import "unsafe"
 import "errors"
 import "strconv"
 
+// Possible constants to use
 const (
 	// Best for most VoIP/videoconference applications where listening quality and intelligibility matter most
-	OpusApplicationVoip = 2048
+	OPUS_APPICATION_VOIP = 2048
 
 	// Best for broadcast/high-fidelity application where the decoded audio sho uld be as close as possible to the input
-	OpusApplicationAudio = 2049
+	OPUS_APPLICATION_VOICE = 2049
 
 	// Only use when lowest-achievable latency is what matters most. Voice-optimized modes cannot be used.
-	OpusApplicationRestrictedLowdelay = 2051
-)
+	OPUS_APPLICATION_RESTRICTEDLOWDELAY = 2051
 
-const (
 	// Signal being encoded is voice
-	OpusSignalVoice = 3001
+	OPUS_SIGNAL_VOICE = 3001
 	// Signal being encoded is music
-	OpusSignalMusic = 3002
+	OPUS_SIGNAL_MUSIC = 3002
 )
 
-// Constants for encoding to opus
+// Settings for encoding to opus
 const (
 	// samplerate of 48kHz is opus default setting
 	OPUS_SAMPLE_RATE = 48000
@@ -59,7 +58,7 @@ const (
 	//OPUS_MAX_PACKET_SIZE = 1275
 
 	// The Application to use for opus. libopus will automatically
-	OPUS_APPLICATION = OpusApplicationAudio
+	OPUS_APPLICATION = OPUS_APPLICATION_VOICE
 
 	// Variable Bit Rate, if set to one libopus will automatically change the bitrate as it sees fit.
 	OPUS_VBR = 0

@@ -1,8 +1,5 @@
 package gomble
 
-import "github.com/CodingVoid/gomble/gomble/audiosources"
-
-// I need a base type.
 type event interface {
 }
 
@@ -17,23 +14,25 @@ type ChannelMessageReceivedEvent struct {
 	Message string
 }
 
-// Track related
+// Track got interrupted/stopped by user
+type TrackStoppedEvent struct {
+	Track  *Track
+}
 
-// Reasons why track ended playing
-type TrackEndedReason int
+// Track got paused
+type TrackPausedEvent struct {
+	Track  *Track
+}
 
-const (
-	// Track got interrupted by user
-	TRACK_INTERRUPTED = iota
-	// Track ended playing because Track was over
-	TRACK_ENDED
-	// Some other failure occurred. The Logs should be checked for further Information
-	TRACK_OTHER
-)
+// Track Finished playing
+type TrackFinishedEvent struct {
+	Track  *Track
+}
 
-type TrackEndedEvent struct {
-	Track  audiosources.Audiosource
-	Reason TrackEndedReason
+// Some other failure occurred. The Logs should be checked for further Information
+type TrackExceptionEvent struct {
+	Track  *Track
+	err	   error
 }
 
 /* Audiosource/Track related stuff

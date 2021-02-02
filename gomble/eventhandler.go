@@ -18,7 +18,10 @@ var Listener listener
 type listener struct {
 	OnPrivateMessageReceived func(e PrivateMessageReceivedEvent)
 	OnChannelMessageReceived func(e ChannelMessageReceivedEvent)
-	OnTrackEnded             func(e TrackEndedEvent)
+	OnTrackPaused			 func(e TrackPausedEvent)
+	OnTrackStopped			 func(e TrackStoppedEvent)
+	OnTrackException		 func(e TrackExceptionEvent)
+	OnTrackFinished			 func(e TrackFinishedEvent)
 }
 
 // conn is our tcp connection to the server. It is used by packagereader.go to read packages from mumble-server and by packagewriter to write packages to the mumble-server.
@@ -103,19 +106,34 @@ func eventRoutine() {
 	for e := range eventpuffer {
 		switch e.(type) {
 		case PrivateMessageReceivedEvent:
-			logger.Debugf("Received Private Message Received event\n")
+			logger.Debugf("Received PrivateMessageReceivedEvent\n")
 			if Listener.OnPrivateMessageReceived != nil {
 				Listener.OnPrivateMessageReceived(e.(PrivateMessageReceivedEvent))
 			}
 		case ChannelMessageReceivedEvent:
-			logger.Debugf("Received Channel Message Received event\n")
+			logger.Debugf("Received ChannelMessageReceivedEvent\n")
 			if Listener.OnChannelMessageReceived != nil {
 				Listener.OnChannelMessageReceived(e.(ChannelMessageReceivedEvent))
 			}
-		case TrackEndedEvent:
-			logger.Debugf("Received TrackEndedEvent\n")
-			if Listener.OnTrackEnded != nil {
-				Listener.OnTrackEnded(e.(TrackEndedEvent))
+		case TrackFinishedEvent:
+			logger.Debugf("Received TrackFinishedEvent\n")
+			if Listener.OnTrackFinished != nil {
+				Listener.OnTrackFinished(e.(TrackFinishedEvent))
+			}
+		case TrackPausedEvent:
+			logger.Debugf("Received TrackPausedEvent\n")
+			if Listener.OnTrackPaused != nil {
+				Listener.OnTrackPaused(e.(TrackPausedEvent))
+			}
+		case TrackStoppedEvent:
+			logger.Debugf("Received TrackStoppedEvent\n")
+			if Listener.OnTrackStopped != nil {
+				Listener.OnTrackStopped(e.(TrackStoppedEvent))
+			}
+		case TrackExceptionEvent:
+			logger.Debugf("Received TrackExceptionEvent\n")
+			if Listener.OnTrackException != nil {
+				Listener.OnTrackException(e.(TrackExceptionEvent))
 			}
 		default:
 			logger.Errorf("Received unknown Event\n")

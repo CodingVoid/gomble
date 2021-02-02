@@ -5,23 +5,23 @@ import (
 	"strings"
 
 	"github.com/CodingVoid/gomble/gomble"
-	"github.com/CodingVoid/gomble/gomble/audiosources"
-	"github.com/CodingVoid/gomble/gomble/audiosources/oggopusfile"
-	"github.com/CodingVoid/gomble/gomble/audiosources/youtube"
 	"github.com/CodingVoid/gomble/logger"
 )
 
 // queue of tracks
-var queue []audiosources.Audiosource
+var queue []*gomble.Track
 
 // current Channel the bot is in
 var currentChannel gomble.Channel
 
 func main() {
-	gomble.Init(logger.DEBUG, "127.0.0.1:64738")
+	gomble.Init(logger.TRACE, "127.0.0.1:64738")
 	gomble.Listener.OnPrivateMessageReceived = OnPrivateMessageReceived
 	gomble.Listener.OnChannelMessageReceived = OnChannelMessageReceived
-	gomble.Listener.OnTrackEnded = OnTrackEnded
+	gomble.Listener.OnTrackFinished = OnTrackFinished
+	gomble.Listener.OnTrackPaused = OnTrackPaused
+	gomble.Listener.OnTrackStopped = OnTrackStopped
+	gomble.Listener.OnTrackException = OnTrackException
 
 	gomble.Begin()
 }
@@ -47,42 +47,47 @@ func OnChannelMessageReceived(e gomble.ChannelMessageReceivedEvent) {
 			url = strings.Fields(e.Message)[1]
 		}
 		logger.Debugf(url + "\n")
-		yt, err := youtube.NewYoutubeVideo(url)
+		yt, err := gomble.LoadTrack(url)
 		if err != nil {
 			logger.Fatalf("%v", err)
 		}
 
 		queue = append(queue, yt)
 		startNextTrack()
-	} else if strings.HasPrefix(e.Message, "#youtube") {
-		yt, err := youtube.NewYoutubeVideo("https://www.youtube.com/watch?v=YO1GBsuzTWU")
-		if err != nil {
-			logger.Fatalf("%v", err)
-		}
-		queue = append(queue, yt)
-		startNextTrack()
-	} else if strings.HasPrefix(e.Message, "#file") {
-		of, err := oggopusfile.NewOggOpusfile("/home/max/Programming/gomble/gomble/audiosources/oggopusfile/example.opus")
-		if err != nil {
-			logger.Fatalf("%v", err)
-		}
-		queue = append(queue, of)
-		startNextTrack()
+	} else if strings.HasPrefix(e.Message, "#stop") {
+		gomble.Stop()
+	} else if strings.HasPrefix(e.Message, "#pause") {
+		gomble.Pause()
+	} else if strings.HasPrefix(e.Message, "#resume") {
+		gomble.Resume()
 	}
 }
 
-func OnTrackEnded(e gomble.TrackEndedEvent) {
+func OnTrackFinished(e gomble.TrackFinishedEvent) {
 	startNextTrack()
+}
+
+func OnTrackPaused(e gomble.TrackPausedEvent) {
+	logger.Infof("Paused Track: %s", e.Track.GetTitle())
+}
+
+func OnTrackStopped(e gomble.TrackStoppedEvent) {
+	logger.Infof("Stopped Track: %s", e.Track.GetTitle())
+}
+
+func OnTrackException(e gomble.TrackExceptionEvent) {
+	logger.Warnf("Got an Exception while playing Track: %s", e.Track.GetTitle())
 }
 
 func startNextTrack() {
 	if len(queue) > 0 {
 		t := queue[0]
 		// returns false if a track is already playing (or t == nil). returns true if starting was successful
-		if gomble.Play(t, false) {
+		if gomble.Play(t) {
 			currentChannel.SendMessage("Start playing Track " + t.GetTitle())
 			// If successful remove the track from the queue
 			queue = queue[1:]
 		}
 	}
 }
+
