@@ -49,9 +49,9 @@ func OnChannelMessageReceived(e gomble.ChannelMessageReceivedEvent) {
 		logger.Debugf(url + "\n")
 		yt, err := gomble.LoadTrack(url)
 		if err != nil {
-			logger.Fatalf("%v", err)
+			logger.Errorf("%v", err)
+            return
 		}
-
 		queue = append(queue, yt)
 		startNextTrack()
 	} else if strings.HasPrefix(e.Message, "#stop") {

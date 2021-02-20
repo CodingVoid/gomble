@@ -6,6 +6,7 @@ import (
     "errors"
 	"io"
 	"fmt"
+    "os"
 	"github.com/CodingVoid/gomble/logger"
 	"github.com/CodingVoid/gomble/gomble/audioformats"
 	"github.com/CodingVoid/gomble/gomble/tracksources"
@@ -32,16 +33,21 @@ const (
 var ytregex *regexp.Regexp = regexp.MustCompile(`https://www.youtube.com/watch\?v=([a-zA-Z0-9\-\_]+)`) // need to use ` character otherwise \character are recognized as escape characters
 
 func LoadTrack(url string) (*Track, error) {
-    var src tracksources.TrackSource
-
     ytmatches := ytregex.FindStringSubmatch(url)
     if len(ytmatches) > 0 {
         surl := ytmatches[1]
-        ytvideo, err := youtube.NewYoutubeVideo(surl)
+        var err error
+        var src tracksources.TrackSource
+        if _, err := os.Stat("/bin/youtube-dl"); err == nil {
+            // use youtube-dl if it exists
+            src, err = youtube.NewYoutubedlVideo(surl)
+        } else {
+            // otherwise use native youtube stream implementation (probably doesn't work, but worth a try)
+            src, err = youtube.NewYoutubeVideo(surl)
+        }
         if err != nil {
             return nil, err
         }
-        src = ytvideo
         return &Track{
             trackSrc: src,
         }, nil
