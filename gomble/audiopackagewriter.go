@@ -25,6 +25,7 @@ type audioCryptoConfig struct {
 
 	// UDP CryptoState (currently OCB2)
 	cryptState cryptstate.CryptState
+    cryptoMode string
 }
 
 var audiocryptoconfig audioCryptoConfig
@@ -45,8 +46,6 @@ func sendAudioPacket(opusPayload []byte, opusPayloadlen uint16, last bool) {
 	audioSequenceNum := encodeVarint(sequenceNumber)
 
 	sequenceNumber = (sequenceNumber + 1) % math.MaxInt32 // sequence number increment
-	//fmt.Printf("SequencenumberNum: %d ", sequenceNumber)
-	//fmt.Printf("Sequencenumber: [% x]\n", audioSequenceNum)
 
 	// opus encoded audio data
 	var terminateBit int64
@@ -75,8 +74,6 @@ func sendAudioPacket(opusPayload []byte, opusPayloadlen uint16, last bool) {
 	logger.Debugf("header size: %d\n", len(header))
 	logger.Debugf("payloa size: %d\n", len(opusPayload))
 	logger.Debugf("entire size %d\n", len(all))
-	//conn.Write(header[:])
-	//conn.Write(opusPayload[:])
 
 	// Do we tunnel audio over TCP or do we send it over UDP
 	if audiocryptoconfig.tcpTunnelMode {
@@ -89,11 +86,11 @@ func sendAudioPacket(opusPayload []byte, opusPayloadlen uint16, last bool) {
 			logger.Fatalf("Did not write as much as expected\n")
 		}
 	} else {
-		// encrypt ocb2-aes
-		var allencrypted []byte = make([]byte, len(all)-2) //ocb2 overhead is always 4 byte, but for UDP we don't need 2 bytes package type and 4 bytes package length (4-2-4 = -2)
+		// encrypt ocb2-aes or XSalsa20-Poly1305
+		var allencrypted []byte = make([]byte, len(all)+audiocryptoconfig.cryptState.Overhead()-6) // UDP we don't need 2 bytes package type and 4 bytes package length (encryptionOverhead-2-4)
 		audiocryptoconfig.cryptState.Encrypt(allencrypted[:], all[6:])
 		logger.Debugf("Send via UDP\n")
-		// send ocb2-aes encrypted udp package
+		// send ocb2-aes or XSalsa20-Poly1305 encrypted udp package
 		n, err := audioConn.Write(allencrypted[:])
 
 		if err != nil {

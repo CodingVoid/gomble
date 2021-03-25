@@ -76,9 +76,8 @@ func pingRoutine() { // {{{
 			all = append(all[:], header)
 			all = append(all[:], data[:]...)
 
-			//udp_encrypt (currently ocb2-aes)
-			//var encryptall []byte = make([]byte, len(all)+audiocryptoconfig.cryptState.Overhead())
-			var encryptall []byte = make([]byte, len(all)+4) // ocb overhead always 4 bytes
+			// udp_encrypt
+			var encryptall []byte = make([]byte, len(all)+audiocryptoconfig.cryptState.Overhead())
 			audiocryptoconfig.cryptState.Encrypt(encryptall[:], all[:])
 
 			// send UDP Ping
@@ -115,7 +114,7 @@ func pingRoutine() { // {{{
 			var plain []byte = make([]byte, len(encrypted))
 			audiocryptoconfig.cryptState.Decrypt(plain[:], encrypted[:])
 			// Now remove tag and other overhead stuff
-			plain = plain[:len(plain)-4] // ocb overhead always 4 bytes
+			plain = plain[:len(plain)-audiocryptoconfig.cryptState.Overhead()]
 
 			// first 3 bits are packet type
 			pckType := (plain[0] & 0xE0) >> 5

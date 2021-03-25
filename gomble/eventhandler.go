@@ -56,6 +56,7 @@ func Begin() {
 	// Initialize mumble connection
 
 	versionPacket := mumbleproto.Version{
+        CryptoModes: []string{"XSalsa20-Poly1305"}, // tell grumble we are prepared to use XSalsa20-Poly1305 encryption
 		Version:   proto.Uint32(66304),
 		Release:   proto.String("gomble"),
 		Os:        proto.String("linux"),
