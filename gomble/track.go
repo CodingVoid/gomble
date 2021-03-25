@@ -89,7 +89,7 @@ func Resume() {
 
 // This audioroutine gets called whenever a new audio stream should be played
 func audioroutine(t *Track) { // {{{
-    enc, err := audioformats.NewOpusEncoder(audioformats.OPUS_SAMPLE_RATE, audioformats.OPUS_CHANNELS, audioformats.OPUS_APPLICATION) // initializes a new encoder
+    enc, err := audioformats.NewOpusEncoder() // initializes a new encoder
     if err != nil {
         eventpuffer <- TrackExceptionEvent{
             Track:  t,
@@ -190,9 +190,7 @@ func audioroutine(t *Track) { // {{{
 
 //var allpcm []int16
 func getNextOpusFrame(t *Track, encoder *audioformats.OpusEncoder) ([]byte, error) { // {{{
-    //pcm, err := track.GetPCMFrame(audioformats.OPUS_PCM_FRAME_SIZE * audioformats.OPUS_CHANNELS)
     pcm, err := t.trackSrc.GetPCMFrame(audioformats.OPUS_FRAME_DURATION)
-    //allpcm = append(allpcm, pcm...)
     if err != nil {
         if err == io.EOF {
             return nil, nil

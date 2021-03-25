@@ -88,7 +88,7 @@ func getBestFormat(formats []YoutubedlFormat) *YoutubedlFormat {// {{{
 // Returns a Mono PCMFrame with the given duration in milliseconds
 func (y *YoutubedlVideo) GetPCMFrame(duration int) ([]int16, error) { // {{{
     logger.Debugf("Called GetPCMFrame\n")
-    neededSamples := 48 * duration // 48kHz * duration in ms
+    neededSamples := 48 * duration * audioformats.OPUS_CHANNELS // 48kHz * duration in ms
     // wait till we have the necessary pcm samples and buffer if possible
     for len(y.pcmbuff) < neededSamples && !y.doneReading {
         nextFrame, err := y.matroskacont.GetNextFrames(1)
@@ -111,13 +111,13 @@ func (y *YoutubedlVideo) GetPCMFrame(duration int) ([]int16, error) { // {{{
                 _, file, line, _ := runtime.Caller(0)
                 return nil, fmt.Errorf("GetPCMFrame(%s:%d): %w", file, line, err)
             }
-            mono := make([]int16, len(pcm)/2)
-            // Convert Stereo to Mono
-            for j := 0; j < len(pcm)/2; j++ {
-                mono[j] = (pcm[j*2]) //+ pcm[i*2+1]) / 2 // to take the average of both channels did really not work as expected... sounded awfull...
-            }
-            logger.Debugf("append mono length: %d to pcmbuff\n", len(mono))
-            y.pcmbuff = append(y.pcmbuff, mono...)
+            //mono := make([]int16, len(pcm)/2)
+            //// Convert Stereo to Mono
+            //for j := 0; j < len(pcm)/2; j++ {
+            //    mono[j] = (pcm[j*2]) //+ pcm[i*2+1]) / 2 // to take the average of both channels did really not work as expected... sounded awfull...
+            //}
+            //logger.Debugf("append mono length: %d to pcmbuff\n", len(mono))
+            y.pcmbuff = append(y.pcmbuff, pcm...)
         }
     }
     // if we still don't have enough samples, we probably have reached EOF and return the remaining samples

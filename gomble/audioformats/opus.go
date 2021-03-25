@@ -41,8 +41,8 @@ const (
 	// samplerate of 48kHz is opus default setting
 	OPUS_SAMPLE_RATE = 48000
 
-	// number of channels to use (2 for Stereo, 1 for Mono). Mumble currently does only support MONO sound.
-	OPUS_CHANNELS = 1
+	// number of channels to use (2 for Stereo, 1 for Mono).
+	OPUS_CHANNELS = 2
 
 	//OPUS_BITRATE=128000 // Opus at 128 KB/s (VBR) is pretty much transparentk
 	//-1 means MAX_BITRATE
@@ -87,18 +87,18 @@ type OpusDecoder struct {
 //[in]	channels	int: Number of channels (1 or 2) in input signal
 //[in]	application	int: Coding mode (OPUS_APPLICATION_VOIP/OPUS_APPLICATION_AUDIO/OPUS_APPLICATION_RESTRICTED_LOWDELAY). This parameter is currently ignored and instead OPUS_APPLICATION_AUDIO will be used
 //[out]	error	int*: Error codes
-func NewOpusEncoder(samplerate int32, channels int, application int) (*OpusEncoder, error) {
+func NewOpusEncoder() (*OpusEncoder, error) {
 	var enc OpusEncoder
 	//var err int
 	//enc = C.opus_encoder_create(C.int(Fs), C.int(channels), C.int(C.gopus_application_audio), errPtr)
-	size := C.opus_encoder_get_size(C.int(channels))
+	size := C.opus_encoder_get_size(C.int(OPUS_CHANNELS))
 	enc.mem = make([]byte, size)
 	enc.cencoder = (*C.OpusEncoder)(unsafe.Pointer(&enc.mem[0]))
-	err := C.opus_encoder_init(enc.cencoder, C.opus_int32(samplerate), C.int(channels), C.int(application))
+	err := C.opus_encoder_init(enc.cencoder, C.opus_int32(OPUS_SAMPLE_RATE), C.int(OPUS_CHANNELS), C.int(OPUS_APPLICATION))
 	if err != C.OPUS_OK {
 		return nil, getOpusError("", int32(err))
 	}
-	enc.channels = channels
+	enc.channels = OPUS_CHANNELS
 	if err := enc.CtlSetBitrate(OPUS_BITRATE); err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ mumble library written in go. Intended for writing client side music bots.
 - you can play youtube videos ~~(without any additional dependency)~~ (it's now recommended to have youtube-dl installed)
 - it automatically uses UDP for sending audio data
 - Buffering, so no disruptions in hearing "should" occur
+- Stereo sound (since mumble 1.4 or newer)
 
 ## TODO
 - implement more than just youtube videos as source for music
