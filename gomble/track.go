@@ -68,7 +68,7 @@ func Play(t *Track) bool { // {{{
         return false
     }
     currTrack = t
-    t.buffer_ms = 100 //TODO
+    t.buffer_ms = 500 // buffering of 500 ms should be enough, I think...
     go audioroutine(t)
     return true
 } // }}}
@@ -98,7 +98,6 @@ func audioroutine(t *Track) { // {{{
         return
     }
 
-    // buffer 10 opus frames
     opusbuf := make(chan []byte, t.buffer_ms / audioformats.OPUS_FRAME_DURATION)
     // our producer
     go func () {
