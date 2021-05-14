@@ -43,7 +43,8 @@ func LoadTrack(url string) (*Track, error) {
             src, err = youtube.NewYoutubedlVideo(surl)
         } else {
             // otherwise use native youtube stream implementation (probably doesn't work, but worth a try)
-            src, err = youtube.NewYoutubeVideo(surl)
+           // src, err = youtube.NewYoutubeVideo(surl)
+           logger.Fatalf("No Youtube-dl installed. exiting\n")
         }
         if err != nil {
             return nil, err

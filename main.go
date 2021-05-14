@@ -1,7 +1,6 @@
 package main
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/CodingVoid/gomble/gomble"
@@ -34,20 +33,8 @@ func OnChannelMessageReceived(e gomble.ChannelMessageReceivedEvent) {
 	// set current channel
 	currentChannel = gomble.GetChannel(e.Channel)
 	if strings.HasPrefix(e.Message, "#play ") {
-		var url string
-		fields := strings.Fields(e.Message)
-		if fields[1] == "<a" {
-			// there is an html encoded link
-			// <a href=link>link</a>
-			re := regexp.MustCompile(`https://www.youtube.com/watch\?v=[a-zA-Z0-9\-\_]+`) // need to use ` character otherwise \character are recognized as escape characters
-			matches := re.FindStringSubmatch(e.Message)
-			url = matches[0]
-		} else {
-			// probably not html encoded (maybe allowHTML is off?)
-			url = strings.Fields(e.Message)[1]
-		}
-		logger.Debugf(url + "\n")
-		yt, err := gomble.LoadTrack(url)
+		logger.Debugf(e.Message + "\n")
+		yt, err := gomble.LoadTrack(e.Message)
 		if err != nil {
 			logger.Errorf("%v", err)
             return
