@@ -1,16 +1,16 @@
 package gomble
 
 import (
-	"regexp"
-	"time"
+    "regexp"
+    "time"
     "errors"
-	"io"
-	"fmt"
+    "io"
+    "fmt"
     "os"
-	"github.com/CodingVoid/gomble/logger"
-	"github.com/CodingVoid/gomble/gomble/audioformats"
-	"github.com/CodingVoid/gomble/gomble/tracksources"
-	"github.com/CodingVoid/gomble/gomble/tracksources/youtube"
+    "github.com/CodingVoid/gomble/logger"
+    "github.com/CodingVoid/gomble/gomble/audioformats"
+    "github.com/CodingVoid/gomble/gomble/tracksources"
+    "github.com/CodingVoid/gomble/gomble/tracksources/youtube"
 )
 
 type Track struct {
@@ -43,8 +43,8 @@ func LoadTrack(url string) (*Track, error) {
             src, err = youtube.NewYoutubedlVideo(surl)
         } else {
             // otherwise use native youtube stream implementation (probably doesn't work, but worth a try)
-           // src, err = youtube.NewYoutubeVideo(surl)
-           logger.Fatalf("No Youtube-dl installed. exiting\n")
+            // src, err = youtube.NewYoutubeVideo(surl)
+            logger.Fatalf("No Youtube-dl installed. exiting\n")
         }
         if err != nil {
             return nil, err

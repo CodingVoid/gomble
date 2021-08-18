@@ -1,40 +1,40 @@
 package youtube
 
 import (
-	"encoding/json"
-	"github.com/CodingVoid/gomble/gomble/audioformats"
-	"github.com/CodingVoid/gomble/gomble/container/matroska"
-	"github.com/CodingVoid/gomble/logger"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"errors"
-	"fmt"
-	"regexp"
-	"runtime"
-	"strconv"
-	"strings"
+    "encoding/json"
+    "github.com/CodingVoid/gomble/gomble/audioformats"
+    "github.com/CodingVoid/gomble/gomble/container/matroska"
+    "github.com/CodingVoid/gomble/logger"
+    "io"
+    "io/ioutil"
+    "net/http"
+    "net/url"
+    "errors"
+    "fmt"
+    "regexp"
+    "runtime"
+    "strconv"
+    "strings"
 )
 
 type YoutubeVideo struct {
-	matroskacont *matroska.Matroska
-	blockOffset  int
-	pcmbuff      []int16
-	pcmbuffoff   int
-	timeoffset   int
-	// opus decoder
-	dec         *audioformats.OpusDecoder
-	doneReading bool
+    matroskacont *matroska.Matroska
+    blockOffset  int
+    pcmbuff      []int16
+    pcmbuffoff   int
+    timeoffset   int
+    // opus decoder
+    dec         *audioformats.OpusDecoder
+    doneReading bool
 
-	title string
+    title string
 }
 
 func NewYoutubeVideo(videoid string) (*YoutubeVideo, error) { // {{{
     //path = path + "&pbj=1&hl=en"
     path := "https://www.youtube.com/watch?v=" + videoid + "&pbj=1&hl=en";
     epath := "https://www.youtube.com/embed/" + videoid;
-	var jsonbytes []byte
+    var jsonbytes []byte
     // The following loop is for trying up to 3 times to download the youtube page and find a specific json string in it. You might not believe but it doesn't always work on the first try...
     var i int
     header := make(http.Header)
@@ -323,8 +323,8 @@ func resolveFormatUrl(format *youtubeFormat, playerScriptName string, skipResolv
     }
     //err = ioutil.WriteFile("youtube.js", byteResp, 0777)
     //if err != nil {
-    //	_, file, line, _ := runtime.Caller(0)
-    //	return "", fmt.Errorf("NewYoutubeVideo(%s:%d): %w", file, line, err)
+    //  _, file, line, _ := runtime.Caller(0)
+    //  return "", fmt.Errorf("NewYoutubeVideo(%s:%d): %w", file, line, err)
     //}
     if !actions.MatchString(string(byteResp)) {
         _, file, line, _ := runtime.Caller(0)
@@ -450,7 +450,7 @@ func (y *YoutubeVideo) GetPCMFrame(duration int) ([]int16, error) { // {{{
         logger.Debugf("len(nextFrame): %d\n", len(nextFrame))
         //samples, err := audioformats.GetPacketFrameSize(48000, nextFrame[0].Audiodata)
         //if err != nil {
-        //	return nil, err
+        //  return nil, err
         //}
         //frameduration := 48000 / samples
         for i := 0; i < len(nextFrame); i++ {
@@ -616,35 +616,35 @@ func extractDollarEscapedFirstGroup(pattern string, str string) string { // {{{
 
 // returns value of given key in json data or an empty string if the key does not exists. So it does not distinguish between an empty value and no key found
 //func get(root map[string]interface{}, key string, level int) string { // {{{
-//	level++
-//	for k, v := range root {
-//		start:
-//		switch vv := v.(type) {
-//		case string:
-//			// some json value strings are actually json objects, but with double quotes around them. But that doesn't seem to be standard JSON which is the reason why it didn't got parsed by go's unmarshal function of package json. To fix that we unmarshal again and replay the switch statement
-//			if strings.HasPrefix(vv, `{`) {
-//				var f interface{}
-//				err := json.Unmarshal([]byte(vv), &f)
-//				if err != nil {
-//					logger.Fatalf(err.Error())
-//				}
-//				m := f.(map[string]interface{})
-//				v = m
-//				logger.Fatalf("Got some invalid json")
-//				goto start
-//			}
-//			logger.Printf("%d: %s: %s\n", level, k, vv)
-//			if k == key {
-//				return vv
-//			}
-//		case map[string]interface{}:
-//			logger.Printf("%d: %s: one level down\n", level, k)
-//			if v := get(vv, key, level); v != "" {
-//				return v
-//			}
-//		}
-//	}
-//	return ""
+//  level++
+//  for k, v := range root {
+//      start:
+//      switch vv := v.(type) {
+//      case string:
+//          // some json value strings are actually json objects, but with double quotes around them. But that doesn't seem to be standard JSON which is the reason why it didn't got parsed by go's unmarshal function of package json. To fix that we unmarshal again and replay the switch statement
+//          if strings.HasPrefix(vv, `{`) {
+//              var f interface{}
+//              err := json.Unmarshal([]byte(vv), &f)
+//              if err != nil {
+//                  logger.Fatalf(err.Error())
+//              }
+//              m := f.(map[string]interface{})
+//              v = m
+//              logger.Fatalf("Got some invalid json")
+//              goto start
+//          }
+//          logger.Printf("%d: %s: %s\n", level, k, vv)
+//          if k == key {
+//              return vv
+//          }
+//      case map[string]interface{}:
+//          logger.Printf("%d: %s: one level down\n", level, k)
+//          if v := get(vv, key, level); v != "" {
+//              return v
+//          }
+//      }
+//  }
+//  return ""
 //} // }}}
 
 type cipherInfo struct {
@@ -660,8 +660,8 @@ type cipherInfo struct {
 func GetCipherInfoFromUrl(cipherUrl string) (*cipherInfo, error) { // {{{
     //query, err := url.ParseQuery(cipherUrl)
     //if err != nil {
-    //	_, file, line, _ := runtime.Caller(0)
-    //	return nil, fmt.Errorf("GetCipherInfoFromUrl(%s:%d): %w", file, line, err)
+    //  _, file, line, _ := runtime.Caller(0)
+    //  return nil, fmt.Errorf("GetCipherInfoFromUrl(%s:%d): %w", file, line, err)
     //}
     //query := u.Query()
 
@@ -670,7 +670,7 @@ func GetCipherInfoFromUrl(cipherUrl string) (*cipherInfo, error) { // {{{
     //logger.Debugf("url: " + info.url + "\n")
     //info.signature = query.Get("sig")
     //if info.signature == "" {
-    //	return nil, errors.New("no signature in cipherurl")
+    //  return nil, errors.New("no signature in cipherurl")
     //}
     //logger.Debugf("signature: " + info.signature + "\n")
     info.signaturekey = "signature"

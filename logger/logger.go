@@ -1,8 +1,8 @@
 package logger
 
 import (
-	"fmt"
-	"os"
+    "fmt"
+    "os"
 )
 
 type Loglevel int
@@ -11,11 +11,11 @@ var loglevel Loglevel
 
 const (
     TRACE Loglevel = iota // 0
-	DEBUG Loglevel = iota // 1
-	INFO  Loglevel = iota // 2
-	WARN  Loglevel = iota // 3
-	ERROR Loglevel = iota // 4
-	FATAL Loglevel = iota // 5
+    DEBUG Loglevel = iota // 1
+    INFO  Loglevel = iota // 2
+    WARN  Loglevel = iota // 3
+    ERROR Loglevel = iota // 4
+    FATAL Loglevel = iota // 5
 )
 
 // writes data to filename

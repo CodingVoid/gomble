@@ -1,9 +1,9 @@
 package youtube
 
 import (
-	"github.com/CodingVoid/gomble/gomble/audioformats"
-	"github.com/CodingVoid/gomble/gomble/container/matroska"
-	"github.com/CodingVoid/gomble/logger"
+    "github.com/CodingVoid/gomble/gomble/audioformats"
+    "github.com/CodingVoid/gomble/gomble/container/matroska"
+    "github.com/CodingVoid/gomble/logger"
     "encoding/json"
     "os/exec"
     "runtime"
@@ -18,14 +18,14 @@ type YoutubedlVideo struct {
     Formats []YoutubedlFormat
 
     // used internally to get audio data
-	matroskacont *matroska.Matroska
-	blockOffset  int
-	pcmbuff      []int16
-	pcmbuffoff   int
-	timeoffset   int
-	// opus decoder
-	dec         *audioformats.OpusDecoder
-	doneReading bool
+    matroskacont *matroska.Matroska
+    blockOffset  int
+    pcmbuff      []int16
+    pcmbuffoff   int
+    timeoffset   int
+    // opus decoder
+    dec         *audioformats.OpusDecoder
+    doneReading bool
 }
 
 type YoutubedlFormat struct {

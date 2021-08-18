@@ -1,62 +1,62 @@
 package gomble
 
 import (
-	"encoding/binary"
-	"errors"
-	"fmt"
-	"io"
-	"strconv"
+    "encoding/binary"
+    "errors"
+    "fmt"
+    "io"
+    "strconv"
 
-	"github.com/golang/protobuf/proto"
+    "github.com/golang/protobuf/proto"
 
-	"github.com/CodingVoid/gomble/logger"
-	"github.com/CodingVoid/gomble/mumbleproto"
+    "github.com/CodingVoid/gomble/logger"
+    "github.com/CodingVoid/gomble/mumbleproto"
 )
 
 func readRoutine() { // {{{
-	for {
-		var data [2048]byte
-		pckType, pcksize, err := receivePacket(data[:])
-		//logger.Debugf("Received entire Package")
-		if err != nil {
-			conn.Close()
-			logger.Fatalf("Could not receive tcp packet: " + err.Error())
-		}
-		printReceivedPackage(pckType, data[:pcksize])
-		handlePacket(pckType, data[:pcksize])
-	}
+    for {
+        var data [2048]byte
+        pckType, pcksize, err := receivePacket(data[:])
+        //logger.Debugf("Received entire Package")
+        if err != nil {
+            conn.Close()
+            logger.Fatalf("Could not receive tcp packet: " + err.Error())
+        }
+        printReceivedPackage(pckType, data[:pcksize])
+        handlePacket(pckType, data[:pcksize])
+    }
 
 } // }}}
 
 func receivePacket(buffer []byte) (uint16, uint32, error) { // {{{
-	var header [6]byte
-	buffersize := len(buffer)
+    var header [6]byte
+    buffersize := len(buffer)
 
-	if _, err := io.ReadFull(conn, header[:]); err != nil {
-		return 0, 0, errors.New("receivePacket header could not be received\n")
-	}
-	pckType := binary.BigEndian.Uint16(header[:2])
-	pckLen := binary.BigEndian.Uint32(header[2:])
+    if _, err := io.ReadFull(conn, header[:]); err != nil {
+        return 0, 0, errors.New("receivePacket header could not be received\n")
+    }
+    pckType := binary.BigEndian.Uint16(header[:2])
+    pckLen := binary.BigEndian.Uint32(header[2:])
 
-	//logger.Debugf("Read Package Header: pckType: %d pckLen: %d\n", pckType, pckLen)
+    //logger.Debugf("Read Package Header: pckType: %d pckLen: %d\n", pckType, pckLen)
 
-	if pckLen > uint32(buffersize) {
-		return 0, 0, errors.New("receivePacket buffer was to small, buffersize: " + strconv.Itoa(buffersize) + " pckLen: " + strconv.Itoa(int(pckLen)))
-	}
+    if pckLen > uint32(buffersize) {
+        return 0, 0, errors.New("receivePacket buffer was to small, buffersize: " + strconv.Itoa(buffersize) + " pckLen: " + strconv.Itoa(int(pckLen)))
+    }
 
-	if _, err := io.ReadFull(conn, buffer[:pckLen]); err != nil {
-		return 0, 0, errors.New("receivePacket data could not be received\n")
-	}
+    if _, err := io.ReadFull(conn, buffer[:pckLen]); err != nil {
+        return 0, 0, errors.New("receivePacket data could not be received\n")
+    }
 
-	return pckType, pckLen, nil
+    return pckType, pckLen, nil
 } // }}}
 
 func handlePacket(pckType uint16, data []byte) { // {{{
-	switch pckType {
-	// Version
-	case 0:
-		var pck mumbleproto.Version
-		proto.Unmarshal(data, &pck)
+    switch pckType {
+        // Version
+    case 0:
+        var pck mumbleproto.Version
+        proto.Unmarshal(data, &pck)
         // murmur only supports ocb2, but grumble also supports golangs secretbox package which uses XSalsa20 and Poly1305 to encrypt and authenticate messages
         for _, mode := range pck.GetCryptoModes() {
             // we use "XSalsa20-Poly1305" encryption if supported by Server (probably only grumble), otherwise use ocb2
@@ -64,13 +64,13 @@ func handlePacket(pckType uint16, data []byte) { // {{{
                 audiocryptoconfig.cryptoMode = "XSalsa20-Poly1305"
             }
         }
-		break
-		// Voice Packet, ignore
-	case 1:
-		break
-		// Crypt Setup
-	case 15:
-		var pck mumbleproto.CryptSetup
+        break
+        // Voice Packet, ignore
+    case 1:
+        break
+        // Crypt Setup
+    case 15:
+        var pck mumbleproto.CryptSetup
         proto.Unmarshal(data, &pck)
         // set config for sending audio data over udp
         if (audiocryptoconfig.cryptoMode == "XSalsa20-Poly1305") {
