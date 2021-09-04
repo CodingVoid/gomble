@@ -24,8 +24,8 @@ const (
     // Best for most VoIP/videoconference applications where listening quality and intelligibility matter most
     OPUS_APPICATION_VOIP = 2048
 
-    // Best for broadcast/high-fidelity application where the decoded audio sho uld be as close as possible to the input
-    OPUS_APPLICATION_VOICE = 2049
+    // Best for broadcast/high-fidelity application where the decoded audio should be as close as possible to the input
+    OPUS_APPLICATION_AUDIO = 2049
 
     // Only use when lowest-achievable latency is what matters most. Voice-optimized modes cannot be used.
     OPUS_APPLICATION_RESTRICTEDLOWDELAY = 2051
@@ -58,7 +58,7 @@ const (
     //OPUS_MAX_PACKET_SIZE = 1275
 
     // The Application to use for opus. libopus will automatically
-    OPUS_APPLICATION = OPUS_APPLICATION_VOICE
+    OPUS_APPLICATION = OPUS_APPLICATION_AUDIO
 
     // Variable Bit Rate, if set to one libopus will automatically change the bitrate as it sees fit.
     OPUS_VBR = 0

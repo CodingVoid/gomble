@@ -10,9 +10,6 @@ import (
 // queue of tracks
 var queue []*gomble.Track
 
-// current Channel the bot is in
-var currentChannel gomble.Channel
-
 func main() {
     gomble.Init(logger.TRACE, "127.0.0.1:64738", false)
     gomble.Listener.OnPrivateMessageReceived = OnPrivateMessageReceived
@@ -26,12 +23,12 @@ func main() {
 }
 
 func OnPrivateMessageReceived(e gomble.PrivateMessageReceivedEvent) {
-    gomble.GetUser(e.Actor).SendMessage("Send Back Private")
+    gomble.SendMessageToUser("Send Back Private", e.Actor)
 }
 
 func OnChannelMessageReceived(e gomble.ChannelMessageReceivedEvent) {
     // set current channel
-    currentChannel = gomble.GetChannel(e.Channel)
+    //gomble.SwitchChannel(e.Channel) TODO
     if strings.HasPrefix(e.Message, "#play ") {
         logger.Debugf(e.Message + "\n")
         yt, err := gomble.LoadTrack(e.Message)
@@ -71,7 +68,7 @@ func startNextTrack() {
         t := queue[0]
         // returns false if a track is already playing (or t == nil). returns true if starting was successful
         if gomble.Play(t) {
-            currentChannel.SendMessage("Start playing Track " + t.GetTitle())
+            gomble.SendMessageToChannel("Start playing Track " + t.GetTitle(), gomble.BotUserState.ChannelId)
             // If successful remove the track from the queue
             queue = queue[1:]
         }

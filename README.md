@@ -15,6 +15,8 @@ mumble library written in go. Intended for writing client side music bots.
 
 ## TODO
 - implement more than just youtube videos as source for music
+- be more or less OS independent (I am only using Linux and have not tested it on other Operating Systems)
+- make library capable of using TLS certificates
 
 ## Notes
 If you want to use this library be aware that this Project is still very much experimental. I appreciate and welcome any Issue or pull request or feature request.

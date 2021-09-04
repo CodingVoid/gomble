@@ -3,41 +3,39 @@ package gomble
 import "github.com/CodingVoid/gomble/logger"
 import "github.com/CodingVoid/gomble/mumbleproto"
 
-type user struct {
-    id uint32
-    //name string
+type UserState struct {
+    Name string
+    Session uint32
+    ChannelId uint32
 }
 
-//var users = map[uint32]string{}
-
-func GetUser(userid uint32) *user {
-    //username := users[userid]
-    //if username == "" {
-    //	return nil
-    //}
-    return &user{
-        id: userid,
-        //name: username,
-    }
-}
-
-//func CheckUserExists(userid uint32) bool {
-//	if users[userid] != "" {
-//		return true
-//	}
-//	return false
-//}
+var BotUserState UserState
 
 // send Message to the user
-func (u user) SendMessage(msg string) {
+func SendMessageToUser(msg string, userid uint32) {
     pck := mumbleproto.TextMessage{
         Actor:     nil, //uint32
         Message:   &msg,
         TreeId:    nil, //[]uint32 {},
-        Session:   []uint32{u.id},
+        Session:   []uint32{userid},
         ChannelId: nil, //[]uint32{},
     }
-    logger.Infof("Sending Message to user %d\n", u.id)
+    logger.Infof("Sending Message to user with session-ID: %d\n", userid)
+    if err := writeProto(&pck); err != nil {
+        panic(err.Error())
+    }
+}
+
+// send Message to the user
+func SendMessageToChannel(msg string, channelid uint32) {
+    pck := mumbleproto.TextMessage{
+        Actor:     nil, // uint32
+        Message:   &msg,
+        TreeId:    nil, // []uint32 {},
+        Session:   nil, // []uint32{},
+        ChannelId: []uint32{channelid},
+    }
+    logger.Infof("Sending Message to Channel %d\n", channelid)
     if err := writeProto(&pck); err != nil {
         panic(err.Error())
     }

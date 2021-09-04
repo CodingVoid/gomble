@@ -99,7 +99,7 @@ func audioroutine(t *Track) { // {{{
         return
     }
 
-    opusbuf := make(chan []byte, t.buffer_ms / audioformats.OPUS_FRAME_DURATION)
+    opusbuf := make(chan []byte, t.buffer_ms / audioformats.OPUS_FRAME_DURATION) // make channel with buffer_ms/frame_duration number of frames as buffer
     // our producer
     go func () {
         for true {
@@ -156,7 +156,7 @@ func audioroutine(t *Track) { // {{{
             }
         default:
         }
-        logger.Debugf("Get next opus frame\n")
+        logger.Debugf("Get next opus frame, number of frames in buffer: %d\n", len(opusbuf))
         lastTime := time.Now()
         opusPayload, ok := <-opusbuf
         elapsed := time.Since(lastTime)

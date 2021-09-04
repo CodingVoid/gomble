@@ -72,9 +72,7 @@ func sendAudioPacket(opusPayload []byte, opusPayloadlen uint16, last bool) {
     var all []byte = make([]byte, len(header)+len(opusPayload))
     copy(all[:len(header)], header[:])
     copy(all[len(header):], opusPayload[:])
-    logger.Debugf("header size: %d\n", len(header))
-    logger.Debugf("payloa size: %d\n", len(opusPayload))
-    logger.Debugf("entire size %d\n", len(all))
+    logger.Debugf("header size: %d, payload size: %d, entire size %d\n", len(header), len(opusPayload), len(all))
 
     // Do we tunnel audio over TCP or do we send it over UDP
     if audiocryptoconfig.tcpTunnelMode {

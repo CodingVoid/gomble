@@ -88,6 +88,12 @@ func handlePacket(pckType uint16, data []byte) { // {{{
     case 9:
         var pck mumbleproto.UserState
         proto.Unmarshal(data, &pck)
+        if (pck.GetName() == "gomble-bot") {
+            // We got our own UserState
+            BotUserState.ChannelId = pck.GetChannelId()
+            BotUserState.Name = pck.GetName()
+            BotUserState.Session = pck.GetSession()
+        }
         break
         // Server sync
     case 5:

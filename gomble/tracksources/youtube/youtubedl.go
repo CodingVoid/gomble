@@ -37,13 +37,14 @@ type YoutubedlFormat struct {
 }
 
 func NewYoutubedlVideo(path string) (*YoutubedlVideo, error) {// {{{
+    var video YoutubedlVideo
+
     cmd := exec.Command("youtube-dl", "-j", path)
     buf, err := cmd.Output()
     if err != nil {
         _, file, line, _ := runtime.Caller(0)
         return nil, fmt.Errorf("NewYoutubeVideo(%s:%d): %w", file, line, err)
     }
-    var video YoutubedlVideo
     err = json.Unmarshal(buf, &video)
     if err != nil {
         _, file, line, _ := runtime.Caller(0)

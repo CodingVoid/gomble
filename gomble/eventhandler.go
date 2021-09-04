@@ -18,10 +18,10 @@ var Listener listener
 type listener struct {
     OnPrivateMessageReceived func(e PrivateMessageReceivedEvent)
     OnChannelMessageReceived func(e ChannelMessageReceivedEvent)
-    OnTrackPaused			 func(e TrackPausedEvent)
-    OnTrackStopped			 func(e TrackStoppedEvent)
-    OnTrackException		 func(e TrackExceptionEvent)
-    OnTrackFinished			 func(e TrackFinishedEvent)
+    OnTrackPaused            func(e TrackPausedEvent)
+    OnTrackStopped           func(e TrackStoppedEvent)
+    OnTrackException         func(e TrackExceptionEvent)
+    OnTrackFinished          func(e TrackFinishedEvent)
 }
 
 // conn is our tcp connection to the server. It is used by packagereader.go to read packages from mumble-server and by packagewriter to write packages to the mumble-server.
