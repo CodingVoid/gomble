@@ -27,8 +27,6 @@ func OnPrivateMessageReceived(e gomble.PrivateMessageReceivedEvent) {
 }
 
 func OnChannelMessageReceived(e gomble.ChannelMessageReceivedEvent) {
-    // set current channel
-    //gomble.SwitchChannel(e.Channel) TODO
     if strings.HasPrefix(e.Message, "#play ") {
         logger.Debugf(e.Message + "\n")
         yt, err := gomble.LoadTrack(e.Message)

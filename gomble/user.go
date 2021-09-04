@@ -11,6 +11,16 @@ type UserState struct {
 
 var BotUserState UserState
 
+func SwitchChannel(channelid uint32) {
+    pck := mumbleproto.UserState{
+        ChannelId: &channelid,
+    }
+    logger.Infof("Switching to Channel %d\n", channelid)
+    if err := writeProto(&pck); err != nil {
+        logger.Errorf("Error while switching channel: %s", err.Error())
+    }
+}
+
 // send Message to the user
 func SendMessageToUser(msg string, userid uint32) {
     pck := mumbleproto.TextMessage{
@@ -22,7 +32,7 @@ func SendMessageToUser(msg string, userid uint32) {
     }
     logger.Infof("Sending Message to user with session-ID: %d\n", userid)
     if err := writeProto(&pck); err != nil {
-        panic(err.Error())
+        logger.Errorf("Error while sending Message to User: %s", err.Error())
     }
 }
 
@@ -37,6 +47,6 @@ func SendMessageToChannel(msg string, channelid uint32) {
     }
     logger.Infof("Sending Message to Channel %d\n", channelid)
     if err := writeProto(&pck); err != nil {
-        panic(err.Error())
+        logger.Errorf("Error while sending Message to Channel: %s", err.Error())
     }
 }
