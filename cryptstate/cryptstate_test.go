@@ -55,7 +55,7 @@ func TestOCB2AES128Decrypt(t *testing.T) {
     div := [aes.BlockSize]byte{
         0x73, 0x99, 0x9d, 0xa2, 0x03, 0x70, 0x00, 0x96, 0xef, 0x55, 0x06, 0x7a, 0x8b, 0xbe, 0x00, 0x07,
     }
-    crypted := [19]byte{
+    encrypted := [19]byte{
         0x1f, 0xfc, 0xdd, 0xb4, 0x68, 0x13, 0x68, 0xb7, 0x92, 0x67, 0xca, 0x2d, 0xba, 0xb7, 0x0d, 0x44, 0xdf, 0x32, 0xd4,
     }
     expected := [15]byte{
@@ -68,7 +68,7 @@ func TestOCB2AES128Decrypt(t *testing.T) {
     cs := CryptState{}
     out := make([]byte, 15)
     cs.SetKey("OCB2-AES128", key[:], div[:], eiv[:])
-    err := cs.Decrypt(out, crypted[:])
+    err := cs.Decrypt(out, encrypted[:])
     if err != nil {
         t.Fatalf("%v", err)
     }

@@ -24,5 +24,5 @@ int main(int argc, char *argv[]) {
 	unsigned char buf[19];
 	cs.encrypt(msg, &buf[0], 15);
 
-	DumpBytes(buf, 19, "crypted");
+	DumpBytes(buf, 19, "encrypted");
 }

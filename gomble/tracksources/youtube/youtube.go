@@ -107,7 +107,7 @@ func NewYoutubeVideo(videoid string) (*YoutubeVideo, error) { // {{{
     }
     var basejs string
     if player == nil {
-        // Search in embeded page for javascript url
+        // Search in embedded page for javascript url
         req, err := http.NewRequest("GET", epath, nil)
         if err != nil {
             _, file, line, _ := runtime.Caller(0)

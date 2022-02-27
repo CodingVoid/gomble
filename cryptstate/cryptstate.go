@@ -119,7 +119,7 @@ func (cs *CryptState) Overhead() int {
 
 func (cs *CryptState) Decrypt(dst, src []byte) error {
     if len(src) < cs.Overhead() {
-        return errors.New("cryptstate: crypted length too short to decrypt")
+        return errors.New("cryptstate: encrypted length too short to decrypt")
     }
 
     plain_len := len(src) - cs.Overhead()
