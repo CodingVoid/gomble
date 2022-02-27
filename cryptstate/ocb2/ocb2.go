@@ -17,35 +17,35 @@
 package ocb2
 
 import (
-    "crypto/cipher"
-    "crypto/subtle"
+	"crypto/cipher"
+	"crypto/subtle"
 )
 
 const (
-    // BlockSize defines the block size that this particular implementation
-    // of OCB2 is made to work on.
-    BlockSize = 16
-    // TagSize specifies the length in bytes of a full OCB2 tag.
-    // As per the specification, applications may truncate their
-    // tags to a given length, but advocates that typical applications
-    // should use a tag length of at least 8 bytes (64 bits).
-    TagSize = BlockSize
-    // NonceSize specifies the length in bytes of an OCB2 nonce.
-    NonceSize = BlockSize
+	// BlockSize defines the block size that this particular implementation
+	// of OCB2 is made to work on.
+	BlockSize = 16
+	// TagSize specifies the length in bytes of a full OCB2 tag.
+	// As per the specification, applications may truncate their
+	// tags to a given length, but advocates that typical applications
+	// should use a tag length of at least 8 bytes (64 bits).
+	TagSize = BlockSize
+	// NonceSize specifies the length in bytes of an OCB2 nonce.
+	NonceSize = BlockSize
 )
 
 // zeros fills block with zero bytes.
 func zeros(block []byte) {
-    for i := range block {
-        block[i] = 0
-    }
+	for i := range block {
+		block[i] = 0
+	}
 }
 
 // xor outputs the bitwise exclusive-or of a and b to dst.
 func xor(dst []byte, a []byte, b []byte) {
-    for i := 0; i < BlockSize; i++ {
-        dst[i] = a[i] ^ b[i]
-    }
+	for i := 0; i < BlockSize; i++ {
+		dst[i] = a[i] ^ b[i]
+	}
 }
 
 // times2 performs the times2 operation, defined as:
@@ -80,11 +80,11 @@ func xor(dst []byte, a []byte, b []byte) {
 // by simply xor'ing the last byte with the number 135 when
 // S[1] = 1.
 func times2(block []byte) {
-    carry := (block[0] >> 7) & 0x1
-    for i := 0; i < BlockSize-1; i++ {
-        block[i] = (block[i] << 1) | ((block[i+1] >> 7) & 0x1)
-    }
-    block[BlockSize-1] = (block[BlockSize-1] << 1) ^ (carry * 135)
+	carry := (block[0] >> 7) & 0x1
+	for i := 0; i < BlockSize-1; i++ {
+		block[i] = (block[i] << 1) | ((block[i+1] >> 7) & 0x1)
+	}
+	block[BlockSize-1] = (block[BlockSize-1] << 1) ^ (carry * 135)
 }
 
 // times3 performs the times3 operation, defined as:
@@ -92,11 +92,11 @@ func times2(block []byte) {
 // times3(S)
 //     times2(S) xor S
 func times3(block []byte) {
-    carry := (block[0] >> 7) & 0x1
-    for i := 0; i < BlockSize-1; i++ {
-        block[i] ^= (block[i] << 1) | ((block[i+1] >> 7) & 0x1)
-    }
-    block[BlockSize-1] ^= ((block[BlockSize-1] << 1) ^ (carry * 135))
+	carry := (block[0] >> 7) & 0x1
+	for i := 0; i < BlockSize-1; i++ {
+		block[i] ^= (block[i] << 1) | ((block[i+1] >> 7) & 0x1)
+	}
+	block[BlockSize-1] ^= ((block[BlockSize-1] << 1) ^ (carry * 135))
 }
 
 // Encrypt encrypts the plaintext src and outputs the corresponding ciphertext into dst.
@@ -113,60 +113,60 @@ func times3(block []byte) {
 // The nonce slice used in this function must have a length equal to ocb2.NonceSize.
 // If any of the above are violated, Encrypt will panic.
 func Encrypt(cipher cipher.Block, dst []byte, src []byte, nonce []byte, tag []byte) {
-    if cipher.BlockSize() != BlockSize {
-        panic("ocb2: cipher blocksize is not equal to ocb2.BlockSize")
-    }
-    if len(nonce) != NonceSize {
-        panic("ocb2: nonce length is not equal to ocb2.NonceSize")
-    }
+	if cipher.BlockSize() != BlockSize {
+		panic("ocb2: cipher blocksize is not equal to ocb2.BlockSize")
+	}
+	if len(nonce) != NonceSize {
+		panic("ocb2: nonce length is not equal to ocb2.NonceSize")
+	}
 
-    var (
-        checksum [BlockSize]byte
-        delta    [BlockSize]byte
-        tmp      [BlockSize]byte
-        pad      [BlockSize]byte
-        calcTag  [NonceSize]byte
-        off      int
-    )
+	var (
+		checksum [BlockSize]byte
+		delta    [BlockSize]byte
+		tmp      [BlockSize]byte
+		pad      [BlockSize]byte
+		calcTag  [NonceSize]byte
+		off      int
+	)
 
-    cipher.Encrypt(delta[0:], nonce[0:])
-    zeros(checksum[0:])
+	cipher.Encrypt(delta[0:], nonce[0:])
+	zeros(checksum[0:])
 
-    remain := len(src)
-    for remain > BlockSize {
-        times2(delta[0:])
-        xor(tmp[0:], delta[0:], src[off:off+BlockSize])
-        cipher.Encrypt(tmp[0:], tmp[0:])
-        xor(dst[off:off+BlockSize], delta[0:], tmp[0:])
-        xor(checksum[0:], checksum[0:], src[off:off+BlockSize])
-        remain -= BlockSize
-        off += BlockSize
-    }
+	remain := len(src)
+	for remain > BlockSize {
+		times2(delta[0:])
+		xor(tmp[0:], delta[0:], src[off:off+BlockSize])
+		cipher.Encrypt(tmp[0:], tmp[0:])
+		xor(dst[off:off+BlockSize], delta[0:], tmp[0:])
+		xor(checksum[0:], checksum[0:], src[off:off+BlockSize])
+		remain -= BlockSize
+		off += BlockSize
+	}
 
-    times2(delta[0:])
-    zeros(tmp[0:])
-    num := remain * 8
-    tmp[BlockSize-2] = uint8((uint32(num) >> 8) & 0xff)
-    tmp[BlockSize-1] = uint8(num & 0xff)
-    xor(tmp[0:], tmp[0:], delta[0:])
-    cipher.Encrypt(pad[0:], tmp[0:])
-    copied := copy(tmp[0:], src[off:])
-    if copied != remain {
-        panic("ocb2: copy failed")
-    }
-    if copy(tmp[copied:], pad[copied:]) != (BlockSize - remain) {
-        panic("ocb2: copy failed")
-    }
-    xor(checksum[0:], checksum[0:], tmp[0:])
-    xor(tmp[0:], pad[0:], tmp[0:])
-    if copy(dst[off:], tmp[0:]) != remain {
-        panic("ocb2: copy failed")
-    }
+	times2(delta[0:])
+	zeros(tmp[0:])
+	num := remain * 8
+	tmp[BlockSize-2] = uint8((uint32(num) >> 8) & 0xff)
+	tmp[BlockSize-1] = uint8(num & 0xff)
+	xor(tmp[0:], tmp[0:], delta[0:])
+	cipher.Encrypt(pad[0:], tmp[0:])
+	copied := copy(tmp[0:], src[off:])
+	if copied != remain {
+		panic("ocb2: copy failed")
+	}
+	if copy(tmp[copied:], pad[copied:]) != (BlockSize - remain) {
+		panic("ocb2: copy failed")
+	}
+	xor(checksum[0:], checksum[0:], tmp[0:])
+	xor(tmp[0:], pad[0:], tmp[0:])
+	if copy(dst[off:], tmp[0:]) != remain {
+		panic("ocb2: copy failed")
+	}
 
-    times3(delta[0:])
-    xor(tmp[0:], delta[0:], checksum[0:])
-    cipher.Encrypt(calcTag[0:], tmp[0:])
-    copy(tag, calcTag[:])
+	times3(delta[0:])
+	xor(tmp[0:], delta[0:], checksum[0:])
+	cipher.Encrypt(calcTag[0:], tmp[0:])
+	copy(tag, calcTag[:])
 }
 
 // Decrypt takes a ciphertext, a nonce, and a tag as its input and outputs a decrypted
@@ -183,64 +183,64 @@ func Encrypt(cipher cipher.Block, dst []byte, src []byte, nonce []byte, tag []by
 // The nonce slice used in this function must have a length equal to ocb2.NonceSize.
 // If any of the above are violated, Encrypt will panic.
 func Decrypt(cipher cipher.Block, plain []byte, encrypted []byte, nonce []byte, tag []byte) bool {
-    if cipher.BlockSize() != BlockSize {
-        panic("ocb2: cipher blocksize is not equal to ocb2.BlockSize")
-    }
-    if len(nonce) != NonceSize {
-        panic("ocb2: nonce length is not equal to ocb2.NonceSize")
-    }
+	if cipher.BlockSize() != BlockSize {
+		panic("ocb2: cipher blocksize is not equal to ocb2.BlockSize")
+	}
+	if len(nonce) != NonceSize {
+		panic("ocb2: nonce length is not equal to ocb2.NonceSize")
+	}
 
-    var (
-        checksum [BlockSize]byte
-        delta    [BlockSize]byte
-        tmp      [BlockSize]byte
-        pad      [BlockSize]byte
-        calcTag  [NonceSize]byte
-        off      int
-    )
+	var (
+		checksum [BlockSize]byte
+		delta    [BlockSize]byte
+		tmp      [BlockSize]byte
+		pad      [BlockSize]byte
+		calcTag  [NonceSize]byte
+		off      int
+	)
 
-    cipher.Encrypt(delta[0:], nonce[0:])
-    zeros(checksum[0:])
+	cipher.Encrypt(delta[0:], nonce[0:])
+	zeros(checksum[0:])
 
-    remain := len(encrypted)
-    for remain > BlockSize {
-        times2(delta[0:])
-        xor(tmp[0:], delta[0:], encrypted[off:off+BlockSize])
-        cipher.Decrypt(tmp[0:], tmp[0:])
-        xor(plain[off:off+BlockSize], delta[0:], tmp[0:])
-        xor(checksum[0:], checksum[0:], plain[off:off+BlockSize])
-        off += BlockSize
-        remain -= BlockSize
-    }
+	remain := len(encrypted)
+	for remain > BlockSize {
+		times2(delta[0:])
+		xor(tmp[0:], delta[0:], encrypted[off:off+BlockSize])
+		cipher.Decrypt(tmp[0:], tmp[0:])
+		xor(plain[off:off+BlockSize], delta[0:], tmp[0:])
+		xor(checksum[0:], checksum[0:], plain[off:off+BlockSize])
+		off += BlockSize
+		remain -= BlockSize
+	}
 
-    times2(delta[0:])
-    zeros(tmp[0:])
-    num := remain * 8
-    tmp[BlockSize-2] = uint8((uint32(num) >> 8) & 0xff)
-    tmp[BlockSize-1] = uint8(num & 0xff)
-    xor(tmp[0:], tmp[0:], delta[0:])
-    cipher.Encrypt(pad[0:], tmp[0:])
-    zeros(tmp[0:])
-    copied := copy(tmp[0:remain], encrypted[off:off+remain])
-    if copied != remain {
-        panic("ocb2: copy failed")
-    }
-    xor(tmp[0:], tmp[0:], pad[0:])
-    xor(checksum[0:], checksum[0:], tmp[0:])
-    copied = copy(plain[off:off+remain], tmp[0:remain])
-    if copied != remain {
-        panic("ocb2: copy failed")
-    }
+	times2(delta[0:])
+	zeros(tmp[0:])
+	num := remain * 8
+	tmp[BlockSize-2] = uint8((uint32(num) >> 8) & 0xff)
+	tmp[BlockSize-1] = uint8(num & 0xff)
+	xor(tmp[0:], tmp[0:], delta[0:])
+	cipher.Encrypt(pad[0:], tmp[0:])
+	zeros(tmp[0:])
+	copied := copy(tmp[0:remain], encrypted[off:off+remain])
+	if copied != remain {
+		panic("ocb2: copy failed")
+	}
+	xor(tmp[0:], tmp[0:], pad[0:])
+	xor(checksum[0:], checksum[0:], tmp[0:])
+	copied = copy(plain[off:off+remain], tmp[0:remain])
+	if copied != remain {
+		panic("ocb2: copy failed")
+	}
 
-    times3(delta[0:])
-    xor(tmp[0:], delta[0:], checksum[0:])
-    cipher.Encrypt(calcTag[0:], tmp[0:])
+	times3(delta[0:])
+	xor(tmp[0:], delta[0:], checksum[0:])
+	cipher.Encrypt(calcTag[0:], tmp[0:])
 
-    // Compare the calculated tag with the expected tag. Truncate
-    // the computed tag if necessary.
-    if subtle.ConstantTimeCompare(calcTag[:len(tag)], tag) != 1 {
-        return false
-    }
+	// Compare the calculated tag with the expected tag. Truncate
+	// the computed tag if necessary.
+	if subtle.ConstantTimeCompare(calcTag[:len(tag)], tag) != 1 {
+		return false
+	}
 
-    return true
+	return true
 }
