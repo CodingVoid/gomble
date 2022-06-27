@@ -20,6 +20,6 @@ mumble library written in go. Intended for writing client side music bots.
 
 ## Notes
 If you want to use this library be aware that this Project is still very much experimental. I appreciate and welcome any Issue or pull request or feature request.
-If there are any questions, do not hesitate to write me an email (Brune.Max@aol.de)
+If there are any questions, do not hesitate to write me an email (code.ivng5@simplelogin.co)
 
 I got inspired by 'lavaplayer' (an audioplayer library for Discord) and 'gumble' (another mumble client implementation)
